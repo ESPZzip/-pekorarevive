@@ -3,60 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <title>Foro Pekora</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 </head>
-<body class="bg-gray-900 text-gray-200 font-sans">
-  <!-- Barra superior -->
-  <header class="bg-gray-800 shadow-md p-4 flex justify-between items-center">
-    <h1 class="text-2xl font-bold text-purple-400">✨ Foro Pekora</h1>
-    <nav>
-      <button onclick="showSection('loginSection')" class="mx-2 px-4 py-2 rounded bg-purple-600 hover:bg-purple-500">Login</button>
-      <button onclick="showSection('registerSection')" class="mx-2 px-4 py-2 rounded bg-green-600 hover:bg-green-500">Registro</button>
-      <button onclick="logout()" class="mx-2 px-4 py-2 rounded bg-red-600 hover:bg-red-500">Salir</button>
-    </nav>
-  </header>
+<body class="bg-black text-white min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <nav class="bg-gray-900 shadow-lg p-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-green-400">Foro Pekora</h1>
+    <div id="menu" class="space-x-4 hidden">
+      <button onclick="showSection('commentsSection')" class="hover:text-green-400">Inicio</button>
+      <button onclick="showSection('commentsSection')" class="hover:text-green-400">Comentar</button>
+      <button onclick="showProfile()" class="hover:text-green-400">Mi Perfil</button>
+      <button onclick="logout()" class="hover:text-red-400">Cerrar Sesión</button>
+    </div>
+  </nav>
 
   <!-- Login -->
-  <section id="loginSection" class="p-6 max-w-md mx-auto mt-8 bg-gray-800 rounded-2xl shadow-lg">
-    <h2 class="text-xl font-semibold text-purple-300 mb-4">Iniciar Sesión</h2>
-    <input id="loginName" type="text" placeholder="Usuario" class="w-full mb-3 p-2 rounded bg-gray-700 border border-gray-600">
-    <input id="loginPass" type="password" placeholder="Contraseña" class="w-full mb-3 p-2 rounded bg-gray-700 border border-gray-600">
-    <button onclick="login()" class="w-full px-4 py-2 bg-purple-600 rounded hover:bg-purple-500">Entrar</button>
+  <section id="loginSection" class="flex flex-col items-center justify-center flex-grow">
+    <div class="bg-gray-800 p-6 rounded-xl shadow-md w-80">
+      <h2 class="text-xl font-semibold text-green-300 mb-4">Iniciar Sesión</h2>
+      <input id="loginName" type="text" placeholder="Usuario" class="w-full mb-3 p-2 rounded bg-gray-700 border border-gray-600">
+      <input id="loginPass" type="password" placeholder="Contraseña" class="w-full mb-3 p-2 rounded bg-gray-700 border border-gray-600">
+      <button onclick="login()" class="w-full px-4 py-2 bg-green-600 rounded hover:bg-green-500">Entrar</button>
+      <p class="mt-3 text-sm text-gray-400">¿No tienes cuenta? <a href="#" onclick="showSection('registerSection')" class="text-green-400">Regístrate</a></p>
+    </div>
   </section>
 
   <!-- Registro -->
-  <section id="registerSection" class="p-6 max-w-md mx-auto mt-8 bg-gray-800 rounded-2xl shadow-lg hidden">
-    <h2 class="text-xl font-semibold text-green-300 mb-4">Crear Cuenta</h2>
-    <input id="regName" type="text" placeholder="Usuario" class="w-full mb-3 p-2 rounded bg-gray-700 border border-gray-600">
-    <input id="regPass" type="password" placeholder="Contraseña" class="w-full mb-3 p-2 rounded bg-gray-700 border border-gray-600">
-    <button onclick="register()" class="w-full px-4 py-2 bg-green-600 rounded hover:bg-green-500">Registrar</button>
-  </section>
-
-  <!-- Panel principal -->
-  <section id="mainSection" class="p-6 max-w-2xl mx-auto mt-8 bg-gray-800 rounded-2xl shadow-lg hidden">
-    <h2 class="text-xl font-semibold text-blue-300 mb-4">Comentarios</h2>
-    <div class="flex mb-4">
-      <input id="commentInput" type="text" placeholder="Escribe tu comentario..." class="flex-1 p-2 rounded-l bg-gray-700 border border-gray-600">
-      <button onclick="postComment()" class="px-4 py-2 bg-blue-600 rounded-r hover:bg-blue-500">Enviar</button>
+  <section id="registerSection" class="flex flex-col items-center justify-center flex-grow hidden">
+    <div class="bg-gray-800 p-6 rounded-xl shadow-md w-80">
+      <h2 class="text-xl font-semibold text-green-300 mb-4">Crear Cuenta</h2>
+      <input id="regName" type="text" placeholder="Usuario" class="w-full mb-3 p-2 rounded bg-gray-700 border border-gray-600">
+      <input id="regPass" type="password" placeholder="Contraseña" class="w-full mb-3 p-2 rounded bg-gray-700 border border-gray-600">
+      <input id="regPic" type="file" accept="image/*" class="w-full mb-3 text-sm text-gray-400">
+      <button onclick="register()" class="w-full px-4 py-2 bg-green-600 rounded hover:bg-green-500">Registrar</button>
+      <p class="mt-3 text-sm text-gray-400">¿Ya tienes cuenta? <a href="#" onclick="showSection('loginSection')" class="text-green-400">Inicia sesión</a></p>
     </div>
-    <div id="comments" class="space-y-4"></div>
   </section>
 
-  <!-- Admin Panel -->
-  <section id="adminPanel" class="p-6 max-w-2xl mx-auto mt-8 bg-gray-800 rounded-2xl shadow-lg hidden">
-    <h2 class="text-xl font-semibold text-red-400 mb-4">⚙️ Admin Panel</h2>
-    <div class="flex mb-4">
-      <input id="userTarget" type="text" placeholder="Usuario a modificar..." class="flex-1 p-2 rounded-l bg-gray-700 border border-gray-600">
-      <button onclick="setRank('Admin')" class="px-4 py-2 bg-red-600 rounded hover:bg-red-500">Hacer Admin</button>
-      <button onclick="setRank('Usuario')" class="px-4 py-2 bg-gray-600 rounded-r hover:bg-gray-500">Hacer Usuario</button>
+  <!-- Sección Comentarios -->
+  <section id="commentsSection" class="flex-grow hidden">
+    <div class="max-w-2xl mx-auto mt-6 p-6 bg-gray-800 rounded-2xl shadow-lg">
+      <h2 class="text-xl font-semibold text-green-300 mb-4">Comentarios</h2>
+      <div id="comments" class="space-y-4 mb-4"></div>
+      <textarea id="commentInput" placeholder="Escribe tu comentario..." class="w-full mb-3 p-2 rounded bg-gray-700 border border-gray-600"></textarea>
+      <button onclick="postComment()" class="px-4 py-2 bg-green-600 rounded hover:bg-green-500">Publicar</button>
+    </div>
+  </section>
+
+  <!-- Perfil -->
+  <section id="profileSection" class="flex flex-col items-center justify-center flex-grow hidden">
+    <div class="bg-gray-800 p-6 rounded-xl shadow-md w-80">
+      <h2 class="text-xl font-semibold text-green-300 mb-4">Mi Perfil</h2>
+      <div class="flex items-center mb-4">
+        <img id="profilePic" src="https://via.placeholder.com/80" class="w-20 h-20 rounded-full mr-4">
+        <div>
+          <p id="profileName" class="text-lg font-bold text-purple-300"></p>
+          <p id="profileRank" class="text-gray-400"></p>
+        </div>
+      </div>
+      <input id="newPic" type="file" accept="image/*" class="w-full mb-3 text-sm text-gray-400">
+      <button onclick="updateProfilePic()" class="w-full px-4 py-2 bg-blue-600 rounded hover:bg-blue-500">Actualizar Foto</button>
     </div>
   </section>
 
   <script>
-    // Config Firebase
-    const firebaseConfig = { 
+    // Config de tu Firebase
+    const firebaseConfig = {
       apiKey: "AIzaSyBwj_as6pb5Bg81F9Cl9VWTKkekMM9Exfk",
       authDomain: "pekora-forum.firebaseapp.com",
       projectId: "pekora-forum",
@@ -66,32 +82,36 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const storage = firebase.storage();
 
     let currentUser = null;
 
     function showSection(id) {
-      document.getElementById("loginSection").classList.add("hidden");
-      document.getElementById("registerSection").classList.add("hidden");
-      document.getElementById("mainSection").classList.add("hidden");
-      document.getElementById("adminPanel").classList.add("hidden");
+      document.querySelectorAll("section").forEach(s => s.classList.add("hidden"));
       document.getElementById(id).classList.remove("hidden");
     }
 
     async function register() {
       const name = document.getElementById("regName").value.trim();
       const pass = document.getElementById("regPass").value.trim();
+      const picFile = document.getElementById("regPic").files[0];
       if (!name || !pass) return alert("Completa todos los campos");
 
       try {
         const userRef = db.collection("users").doc(name);
         const doc = await userRef.get();
-        if (doc.exists) {
-          alert("Ese nombre ya está en uso");
-        } else {
-          await userRef.set({ password: pass, rank: "Usuario" });
-          alert("Registrado con éxito, ahora inicia sesión");
-          showSection("loginSection");
+        if (doc.exists) return alert("Ese usuario ya existe");
+
+        let photoURL = "";
+        if (picFile) {
+          const storageRef = storage.ref("profilePics/" + name);
+          await storageRef.put(picFile);
+          photoURL = await storageRef.getDownloadURL();
         }
+
+        await userRef.set({ password: pass, rank: "Usuario", photo: photoURL });
+        alert("Registrado con éxito, ahora inicia sesión");
+        showSection("loginSection");
       } catch (e) {
         console.error(e);
         alert("Error al registrar");
@@ -101,24 +121,16 @@
     async function login() {
       const name = document.getElementById("loginName").value.trim();
       const pass = document.getElementById("loginPass").value.trim();
-      if (!name || !pass) return alert("Completa todos los campos");
+      if (!name || !pass) return alert("Completa los campos");
 
       try {
-        const userRef = db.collection("users").doc(name);
-        const doc = await userRef.get();
-        if (!doc.exists || doc.data().password !== pass) {
-          alert("Usuario o contraseña incorrectos");
-          return;
-        }
-        currentUser = { name, rank: doc.data().rank || "Usuario" };
-        localStorage.setItem("user", JSON.stringify(currentUser));
-        showSection("mainSection");
-        loadComments();
+        const doc = await db.collection("users").doc(name).get();
+        if (!doc.exists || doc.data().password !== pass) return alert("Usuario o contraseña incorrectos");
 
-        // Mostrar admin panel si es Cracky
-        if (name === "Cracky") {
-          document.getElementById("adminPanel").classList.remove("hidden");
-        }
+        currentUser = { name, ...doc.data() };
+        document.getElementById("menu").classList.remove("hidden");
+        loadComments();
+        showSection("commentsSection");
       } catch (e) {
         console.error(e);
         alert("Error al iniciar sesión");
@@ -127,21 +139,8 @@
 
     function logout() {
       currentUser = null;
-      localStorage.removeItem("user");
+      document.getElementById("menu").classList.add("hidden");
       showSection("loginSection");
-    }
-
-    async function postComment() {
-      if (!currentUser) return alert("Debes iniciar sesión");
-      const text = document.getElementById("commentInput").value.trim();
-      if (!text) return;
-      await db.collection("comments").add({
-        author: currentUser.name,
-        rank: currentUser.rank,
-        text,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      document.getElementById("commentInput").value = "";
     }
 
     function loadComments() {
@@ -151,45 +150,65 @@
         snapshot.forEach(doc => {
           const c = doc.data();
           const rankColor = c.rank === "Admin" ? "text-red-400" : "text-gray-400";
+          const photo = c.photo || "https://via.placeholder.com/40";
           commentsDiv.innerHTML += `
-            <div class="p-4 bg-gray-700 rounded-lg shadow">
-              <p><span class="font-bold text-purple-300">${c.author}</span> 
-                 <span class="${rankColor}">(${c.rank})</span></p>
-              <p class="mt-1">${c.text}</p>
+            <div class="flex items-start p-4 bg-gray-700 rounded-lg shadow">
+              <img src="${photo}" alt="pfp" class="w-10 h-10 rounded-full mr-3">
+              <div>
+                <p><span class="font-bold text-purple-300">${c.author}</span> 
+                   <span class="${rankColor}">(${c.rank})</span></p>
+                <p class="mt-1">${c.text}</p>
+              </div>
             </div>`;
         });
       });
     }
 
-    async function setRank(rank) {
-      const user = document.getElementById("userTarget").value.trim();
-      if (!user) return alert("Escribe el usuario a modificar");
-      try {
-        const userRef = db.collection("users").doc(user);
-        const doc = await userRef.get();
-        if (!doc.exists) return alert("Usuario no encontrado");
-        await userRef.update({ rank });
-        alert(`El usuario ${user} ahora es ${rank}`);
-      } catch (e) {
-        console.error(e);
-        alert("Error al cambiar rango");
-      }
+    async function postComment() {
+      if (!currentUser) return alert("Debes iniciar sesión");
+      const text = document.getElementById("commentInput").value.trim();
+      if (!text) return;
+
+      const userDoc = await db.collection("users").doc(currentUser.name).get();
+      const photo = userDoc.exists ? userDoc.data().photo || "" : "";
+
+      await db.collection("comments").add({
+        author: currentUser.name,
+        rank: currentUser.rank,
+        text,
+        photo,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      document.getElementById("commentInput").value = "";
     }
 
-    // Restaurar sesión
-    window.onload = () => {
-      const saved = localStorage.getItem("user");
-      if (saved) {
-        currentUser = JSON.parse(saved);
-        showSection("mainSection");
-        loadComments();
-        if (currentUser.name === "Cracky") {
-          document.getElementById("adminPanel").classList.remove("hidden");
-        }
-      } else {
-        showSection("loginSection");
+    function showProfile() {
+      if (!currentUser) return alert("Debes iniciar sesión");
+      document.getElementById("profileName").innerText = currentUser.name;
+      document.getElementById("profileRank").innerText = currentUser.rank;
+      document.getElementById("profilePic").src = currentUser.photo || "https://via.placeholder.com/80";
+      showSection("profileSection");
+    }
+
+    async function updateProfilePic() {
+      const picFile = document.getElementById("newPic").files[0];
+      if (!picFile) return alert("Selecciona una foto");
+
+      try {
+        const storageRef = storage.ref("profilePics/" + currentUser.name);
+        await storageRef.put(picFile);
+        const photoURL = await storageRef.getDownloadURL();
+
+        await db.collection("users").doc(currentUser.name).update({ photo: photoURL });
+        currentUser.photo = photoURL;
+        document.getElementById("profilePic").src = photoURL;
+
+        alert("Foto de perfil actualizada 🎉");
+      } catch (e) {
+        console.error(e);
+        alert("Error al actualizar la foto");
       }
-    };
+    }
   </script>
 </body>
 </html>
