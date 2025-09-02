@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pekora Forum</title>
+  <title>test</title>
   <style>
     body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f6fa; color: #2d3436; }
     header {
@@ -57,13 +57,13 @@
 
   <div class="container" id="auth">
     <h2>👤 Autenticación</h2>
-    <div class="card">
+    <div class="card" id="registerCard">
       <h3>Registrarse</h3>
       <input type="text" id="regUser" placeholder="Nombre de usuario" required />
       <input type="password" id="regPass" placeholder="Contraseña" required />
       <button onclick="register()">Crear cuenta</button>
     </div>
-    <div class="card">
+    <div class="card" id="loginCard">
       <h3>Iniciar Sesión</h3>
       <input type="text" id="logUser" placeholder="Nombre de usuario" required />
       <input type="password" id="logPass" placeholder="Contraseña" required />
@@ -110,6 +110,17 @@
 
     let currentUser = null;
 
+    // Guardar sesión
+    function setSession(username) {
+      currentUser = username;
+      localStorage.setItem("user", username);
+      document.getElementById("userName").textContent = username;
+      document.getElementById("userPanel").classList.remove("hidden");
+      document.getElementById("comentarios").classList.remove("hidden");
+      document.getElementById("registerCard").classList.add("hidden");
+      document.getElementById("loginCard").classList.add("hidden");
+    }
+
     async function register() {
       const username = document.getElementById("regUser").value.trim();
       const password = document.getElementById("regPass").value.trim();
@@ -123,13 +134,7 @@
       }
 
       await db.collection("users").doc(username).set({ password });
-
-      // 👉 Auto login después de registrarse
-      currentUser = username;
-      document.getElementById("userName").textContent = username;
-      document.getElementById("userPanel").classList.remove("hidden");
-      document.getElementById("comentarios").classList.remove("hidden");
-
+      setSession(username);
       alert("✅ Cuenta creada y sesión iniciada");
     }
 
@@ -142,19 +147,26 @@
         alert("❌ Usuario o contraseña incorrectos");
         return;
       }
-
-      currentUser = username;
-      document.getElementById("userName").textContent = username;
-      document.getElementById("userPanel").classList.remove("hidden");
-      document.getElementById("comentarios").classList.remove("hidden");
+      setSession(username);
       alert("✅ Sesión iniciada");
     }
 
     function logout() {
       currentUser = null;
+      localStorage.removeItem("user");
       document.getElementById("userPanel").classList.add("hidden");
       document.getElementById("comentarios").classList.add("hidden");
+      document.getElementById("registerCard").classList.remove("hidden");
+      document.getElementById("loginCard").classList.remove("hidden");
     }
+
+    // Restaurar sesión al cargar
+    window.onload = () => {
+      const savedUser = localStorage.getItem("user");
+      if (savedUser) {
+        setSession(savedUser);
+      }
+    };
 
     // Comentarios
     const form = document.getElementById("commentForm");
