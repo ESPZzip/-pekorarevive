@@ -123,7 +123,14 @@
       }
 
       await db.collection("users").doc(username).set({ password });
-      alert("✅ Cuenta creada, ahora inicia sesión");
+
+      // 👉 Auto login después de registrarse
+      currentUser = username;
+      document.getElementById("userName").textContent = username;
+      document.getElementById("userPanel").classList.remove("hidden");
+      document.getElementById("comentarios").classList.remove("hidden");
+
+      alert("✅ Cuenta creada y sesión iniciada");
     }
 
     async function login() {
