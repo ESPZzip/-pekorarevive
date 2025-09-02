@@ -1,221 +1,314 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pekora Forum</title>
   <style>
+    :root {
+      --bg: #0b0b0c;
+      --panel: #141418;
+      --muted: #9aa0a6;
+      --brand: #00aaff;
+      --brand-2: #6ecbff;
+      --text: #e9eef3;
+      --input: #1e1f25;
+      --shadow: 0 8px 30px rgba(0,0,0,.45);
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0d0d0d;
-      color: #f1f1f1;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      color: var(--text);
+      background: radial-gradient(1200px 600px at 80% -10%, rgba(0,170,255,0.15), transparent 60%),
+                  radial-gradient(1000px 500px at 10% -10%, rgba(110,203,255,0.12), transparent 60%),
+                  var(--bg);
+      min-height: 100vh;
     }
     header {
-      background: #111;
-      padding: 20px;
-      text-align: center;
-      border-bottom: 2px solid #00aaff;
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(6px);
+      background: rgba(10,10,14,.6);
+      border-bottom: 1px solid rgba(255,255,255,.06);
     }
-    header h1 {
-      margin: 0;
-      color: #00aaff;
+    .nav {
+      max-width: 980px; margin: 0 auto; padding: 16px 20px;
+      display: flex; align-items: center; gap: 14px;
     }
-    .container {
-      max-width: 700px;
-      margin: 20px auto;
-      padding: 20px;
+    .brand {
+      font-weight: 800; letter-spacing: .3px; color: var(--brand);
+      display: flex; align-items: center; gap: 10px;
     }
+    .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 18px var(--brand); }
+    .nav a {
+      color: var(--muted); text-decoration: none; font-weight: 600; padding: 8px 12px; border-radius: 10px;
+      transition: .2s;
+    }
+    .nav a:hover { color: var(--text); background: rgba(255,255,255,.06); }
+
+    .container { max-width: 980px; margin: 28px auto; padding: 0 20px 40px; }
+
     .card {
-      background: #1a1a1a;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       padding: 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      margin-bottom: 22px;
     }
+    h1, h2 { margin: 0 0 12px 0; }
+    h1 { font-size: 1.9rem; }
+    h2 { font-size: 1.3rem; color: var(--brand-2); }
+
+    .grid { display: grid; gap: 16px; }
+    @media (min-width: 760px) {
+      .grid-2 { grid-template-columns: 1fr 1fr; }
+    }
+
     input, textarea, button {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
+      width: 100%; border-radius: 12px; font-size: 15px;
     }
     input, textarea {
-      background: #2a2a2a;
-      color: #fff;
+      background: var(--input); color: var(--text);
+      border: 1px solid rgba(255,255,255,.08);
+      padding: 12px 14px; outline: none;
     }
+    input:focus, textarea:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0,170,255,.15); }
     button {
-      background: #00aaff;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
+      background: linear-gradient(180deg, var(--brand), #0089cc);
+      border: none; color: #fff; font-weight: 700; letter-spacing: .2px;
+      padding: 12px 14px; cursor: pointer; transition: .18s; box-shadow: var(--shadow);
     }
-    button:hover {
-      background: #0077aa;
-    }
-    .hidden { display: none; }
+    button:hover { transform: translateY(-1px); filter: brightness(1.06); }
+    .btn-secondary { background: #2a2d36; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+
     .comment {
-      background: #2a2a2a;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 12px;
+      background: #0f1014; border: 1px solid rgba(255,255,255,.06);
+      border-radius: 12px; padding: 12px; margin-bottom: 12px;
     }
-    .comment .author {
-      font-weight: bold;
-      color: #00aaff;
-    }
-    .comment .time {
-      font-size: 12px;
-      color: #aaa;
-    }
-    .comment .text {
-      margin-top: 5px;
-    }
+    .comment .author { font-weight: 800; color: var(--brand-2); }
+    .comment .time { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .comment .text { margin-top: 8px; line-height: 1.5; }
+
+    .hidden { display: none !important; }
+    .hint { color: var(--muted); font-size: 13px; }
   </style>
 </head>
 <body>
   <header>
-    <h1>🌐 Pekora Forums</h1>
+    <div class="nav">
+      <div class="brand"><span class="dot"></span> Pekora Forum</div>
+      <div style="flex:1"></div>
+      <a href="#cuenta">Cuenta</a>
+      <a href="#comentarios">Comentarios</a>
+    </div>
   </header>
 
   <div class="container">
-    <div class="card" id="authCard">
-      <h2>🔑 Registro / Login</h2>
-      <input type="text" id="username" placeholder="Usuario" />
-      <input type="password" id="password" placeholder="Contraseña" />
-      <button onclick="register()">Register</button>
-      <button onclick="login()">Login</button>
+    <div class="card" id="hero">
+      <h1>Bienvenido 👋</h1>
+      <p class="hint">Crea tu usuario, inicia sesión y comenta. Los mensajes se guardan en la nube y los ven todos en tiempo real.</p>
+    </div>
+
+    <!-- Auth -->
+    <div class="grid grid-2" id="authCards">
+      <div class="card">
+        <h2 id="cuenta">🔑 Registrarse</h2>
+        <div class="grid">
+          <input id="regUser" type="text" placeholder="Nombre de usuario" autocomplete="username">
+          <input id="regPass" type="password" placeholder="Contraseña" autocomplete="new-password">
+          <button id="registerBtn">Crear cuenta</button>
+          <div class="hint">* Demo sencilla: los usuarios y contraseñas se guardan localmente en este navegador.</div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>👤 Iniciar sesión</h2>
+        <div class="grid">
+          <input id="logUser" type="text" placeholder="Nombre de usuario" autocomplete="username">
+          <input id="logPass" type="password" placeholder="Contraseña" autocomplete="current-password">
+          <button id="loginBtn">Entrar</button>
+          <div class="hint">¿Nuevo? Regístrate a la izquierda y quedas logueado al instante.</div>
+        </div>
+      </div>
     </div>
 
     <div class="card hidden" id="userPanel">
-      <h2>Bienvenido <span id="userName"></span></h2>
-      <button onclick="logout()">Sign out</button>
+      <h2>✅ Sesión iniciada</h2>
+      <div class="row">
+        <div>Bienvenido, <b id="userName"></b></div>
+        <div style="flex:1"></div>
+        <button id="logoutBtn" class="btn-secondary">Cerrar sesión</button>
+      </div>
     </div>
 
-    <div id="commentsSection" class="hidden">
+    <!-- Comentarios -->
+    <div id="comentarios" class="hidden">
       <div class="card">
-        <h2>💬 New comment</h2>
-        <form id="commentForm">
+        <h2>💬 Nuevo comentario</h2>
+        <form id="commentForm" class="grid">
           <textarea id="text" rows="3" placeholder="Escribe tu comentario..." required></textarea>
-          <button type="submit">Post</button>
+          <button type="submit">Publicar</button>
         </form>
       </div>
       <div id="comments"></div>
     </div>
   </div>
 
-  <!-- Firebase -->
+  <!-- Firebase + App -->
   <script type="module">
-    // Importar Firebase
+    /************* Firebase (modular SDK) *************/
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // Tu configuración
+    // Tu config (sirve con us-central1 sin problema)
     const firebaseConfig = {
       apiKey: "AIzaSyBwj_as6pb5Bg81F9Cl9VWTKkekMM9Exfk",
       authDomain: "pekora-forum.firebaseapp.com",
       projectId: "pekora-forum",
-      storageBucket: "pekora-forum.firebasestorage.app",
+      storageBucket: "pekora-forum.appspot.com",
       messagingSenderId: "161910967859",
       appId: "1:161910967859:web:d91e68d48a6be3b1e9dd46"
     };
 
-    // Inicializar
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    /************* Helpers UI *************/
+    const $ = (id) => document.getElementById(id);
+    const authCards = $("authCards");
+    const userPanel = $("userPanel");
+    const comentariosWrap = $("comentarios");
+    const userNameSpan = $("userName");
+
+    function toast(msg){ alert(msg); }
+
+    /************* Auth simple (localStorage) *************/
     let currentUser = null;
-
-    // Guardar usuarios en localStorage (simulación simple)
-    function register() {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
-      if (!username || !password) return alert("Completa todos los campos");
-
-      let users = JSON.parse(localStorage.getItem("users")) || {};
-      if (users[username]) return alert("Ese usuario ya existe");
-
-      users[username] = password;
-      localStorage.setItem("users", JSON.stringify(users));
-      setSession(username);
-      alert("✅ Cuenta creada con éxito");
-    }
-
-    function login() {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
-      let users = JSON.parse(localStorage.getItem("users")) || {};
-      if (!users[username] || users[username] !== password) {
-        return alert("❌ Usuario o contraseña incorrectos");
-      }
-      setSession(username);
-      alert("✅ Sesión iniciada");
-    }
 
     function setSession(username) {
       currentUser = username;
-      localStorage.setItem("user", username);
-      document.getElementById("authCard").classList.add("hidden");
-      document.getElementById("userPanel").classList.remove("hidden");
-      document.getElementById("commentsSection").classList.remove("hidden");
-      document.getElementById("userName").textContent = username;
+      localStorage.setItem("pf_user", username);
+
+      // UI
+      userNameSpan.textContent = username;
+      authCards.classList.add("hidden");
+      userPanel.classList.remove("hidden");
+      comentariosWrap.classList.remove("hidden");
     }
 
-    function logout() {
+    function clearSession() {
       currentUser = null;
-      localStorage.removeItem("user");
-      document.getElementById("authCard").classList.remove("hidden");
-      document.getElementById("userPanel").classList.add("hidden");
-      document.getElementById("commentsSection").classList.add("hidden");
+      localStorage.removeItem("pf_user");
+      userPanel.classList.add("hidden");
+      comentariosWrap.classList.add("hidden");
+      authCards.classList.remove("hidden");
     }
 
-    // Guardar comentario en Firestore
+    function getUsers() {
+      try {
+        return JSON.parse(localStorage.getItem("pf_users")) || {};
+      } catch { return {}; }
+    }
+    function setUsers(obj) {
+      localStorage.setItem("pf_users", JSON.stringify(obj));
+    }
+
+    async function handleRegister() {
+      const u = $("regUser").value.trim();
+      const p = $("regPass").value.trim();
+      if (!u || !p) return toast("Completa usuario y contraseña.");
+
+      const users = getUsers();
+      if (users[u]) return toast("Ese usuario ya existe.");
+
+      users[u] = p;              // (Sencillo para demo; en producción usa hash)
+      setUsers(users);
+      setSession(u);
+      toast("Cuenta creada y sesión iniciada ✅");
+    }
+
+    async function handleLogin() {
+      const u = $("logUser").value.trim();
+      const p = $("logPass").value.trim();
+      const users = getUsers();
+
+      if (!users[u] || users[u] !== p) {
+        return toast("Usuario o contraseña incorrectos.");
+      }
+      setSession(u);
+      toast("Sesión iniciada ✅");
+    }
+
+    function handleLogout() {
+      clearSession();
+      toast("Sesión cerrada.");
+    }
+
+    /************* Comentarios (Firestore en tiempo real) *************/
     async function saveComment(author, text) {
       await addDoc(collection(db, "comments"), {
         author,
         text,
-        time: new Date().toLocaleString()
+        ts: serverTimestamp(),      // para ordenar correctamente
       });
     }
 
-    // Mostrar comentarios en tiempo real
-    function loadComments() {
-      const commentsDiv = document.getElementById("comments");
-      const q = query(collection(db, "comments"), orderBy("time"));
-      onSnapshot(q, snapshot => {
+    function listenComments() {
+      const commentsDiv = $("comments");
+      const q = query(collection(db, "comments"), orderBy("ts", "desc"));
+      onSnapshot(q, (snap) => {
         commentsDiv.innerHTML = "";
-        snapshot.forEach(doc => {
+        snap.forEach(doc => {
           const c = doc.data();
-          const div = document.createElement("div");
-          div.classList.add("comment");
-          div.innerHTML = `
-            <div class="author">${c.author}</div>
-            <div class="time">${c.time}</div>
-            <div class="text">${c.text}</div>
+          const when = c.ts?.toDate ? c.ts.toDate().toLocaleString() : "justo ahora";
+          const el = document.createElement("div");
+          el.className = "comment";
+          el.innerHTML = `
+            <div class="author">${c.author || "Anónimo"}</div>
+            <div class="time">${when}</div>
+            <div class="text">${(c.text || "").replace(/</g,"&lt;")}</div>
           `;
-          commentsDiv.appendChild(div);
+          commentsDiv.appendChild(el);
         });
+      }, (err) => {
+        console.error(err);
+        toast("No se pudieron cargar los comentarios. Revisa tus reglas de Firestore.");
       });
     }
 
-    document.getElementById("commentForm").addEventListener("submit", e => {
-      e.preventDefault();
-      const text = document.getElementById("text").value.trim();
-      if (text && currentUser) {
-        saveComment(currentUser, text);
-        document.getElementById("text").value = "";
-      }
-    });
+    /************* Eventos *************/
+    document.addEventListener("DOMContentLoaded", () => {
+      // Botones
+      $("registerBtn").addEventListener("click", handleRegister);
+      $("loginBtn").addEventListener("click", handleLogin);
+      $("logoutBtn").addEventListener("click", handleLogout);
 
-    // Restaurar sesión al cargar
-    window.onload = () => {
-      const savedUser = localStorage.getItem("user");
-      if (savedUser) {
-        setSession(savedUser);
-      }
-      loadComments();
-    };
+      // Form de comentario
+      $("commentForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const text = $("text").value.trim();
+        if (!currentUser) return toast("Debes iniciar sesión.");
+        if (!text) return;
+        try {
+          await saveComment(currentUser, text);
+          $("text").value = "";
+        } catch (e) {
+          console.error(e);
+          toast("No se pudo publicar. Revisa Firestore/Reglas.");
+        }
+      });
+
+      // Restaurar sesión
+      const saved = localStorage.getItem("pf_user");
+      if (saved) setSession(saved);
+
+      // Escuchar comentarios
+      listenComments();
+    });
   </script>
 </body>
 </html>
