@@ -3,114 +3,139 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>test</title>
+  <title>Pekora Forum</title>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f6fa; color: #2d3436; }
-    header {
-      background: linear-gradient(135deg, #6c5ce7, #00cec9);
-      color: #fff; padding: 40px 20px; text-align: center;
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #0d0d0d;
+      color: #f1f1f1;
     }
-    header h1 { font-size: 2.2rem; margin: 0; }
-    header p { opacity: 0.9; }
-    nav { background: #2d3436; display: flex; justify-content: center; gap: 20px; padding: 12px; }
-    nav a { color: #dfe6e9; text-decoration: none; font-weight: 600; }
-    nav a:hover { color: #00cec9; }
-
-    .container { max-width: 700px; margin: 20px auto; padding: 20px; }
-    h2 { border-left: 5px solid #6c5ce7; padding-left: 10px; }
-
-    .card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-
+    header {
+      background: #111;
+      padding: 30px;
+      text-align: center;
+      border-bottom: 2px solid #00aaff;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: #00aaff;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      background: #1a1a1a;
+      padding: 15px;
+      border-bottom: 2px solid #222;
+    }
+    nav a {
+      color: #00aaff;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+    nav a:hover {
+      color: #66d9ff;
+    }
+    .container {
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+    .card {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      margin-bottom: 20px;
+    }
     input, textarea, button {
-      width: 100%; padding: 10px; margin: 6px 0;
-      border: 1px solid #ccc; border-radius: 8px; font-size: 14px;
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    input, textarea {
+      background: #2a2a2a;
+      color: #fff;
     }
     button {
-      background: #6c5ce7; color: #fff; font-weight: bold; border: none; cursor: pointer; transition: 0.2s;
+      background: #00aaff;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
     }
-    button:hover { background: #341f97; }
-
-    .comment { background: #fff; padding: 15px; margin-bottom: 12px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
-    .comment .author { font-weight: bold; color: #6c5ce7; }
-    .comment .time { font-size: 12px; color: #636e72; margin-top: 5px; }
-    .comment .text { margin-top: 10px; }
-
-    #adminPanel { display: none; background: #ffeaa7; padding: 20px; border-radius: 10px; border: 2px solid #f39c12; margin-top: 20px; }
-    .admin-comment { background: #ffeaa7; padding: 10px; margin: 5px 0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
-    .admin-comment button { background: #d63031; width: auto; padding: 6px 12px; border-radius: 6px; }
-    .admin-comment button:hover { background: #ff7675; }
-
+    button:hover {
+      background: #0077aa;
+    }
     .hidden { display: none; }
+    .comment {
+      background: #2a2a2a;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+    .comment .author {
+      font-weight: bold;
+      color: #00aaff;
+    }
+    .comment .time {
+      font-size: 12px;
+      color: #aaa;
+    }
+    .comment .text {
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>🌐 Pekora Forum</h1>
-    <p>Regístrate con usuario y contraseña, inicia sesión y comparte tus ideas</p>
   </header>
 
   <nav>
     <a href="#auth">Cuenta</a>
     <a href="#comentarios">Comentarios</a>
-    <a href="#admin">Admin</a>
   </nav>
 
   <div class="container" id="auth">
-    <h2>👤 Autenticación</h2>
     <div class="card" id="registerCard">
-      <h3>Registrarse</h3>
-      <input type="text" id="regUser" placeholder="Nombre de usuario" required />
-      <input type="password" id="regPass" placeholder="Contraseña" required />
+      <h2>🔑 Registrarse</h2>
+      <input type="text" id="regUser" placeholder="Usuario" />
+      <input type="password" id="regPass" placeholder="Contraseña" />
       <button onclick="register()">Crear cuenta</button>
     </div>
     <div class="card" id="loginCard">
-      <h3>Iniciar Sesión</h3>
-      <input type="text" id="logUser" placeholder="Nombre de usuario" required />
-      <input type="password" id="logPass" placeholder="Contraseña" required />
+      <h2>👤 Iniciar Sesión</h2>
+      <input type="text" id="logUser" placeholder="Usuario" />
+      <input type="password" id="logPass" placeholder="Contraseña" />
       <button onclick="login()">Entrar</button>
     </div>
     <div class="card hidden" id="userPanel">
-      <h3>Bienvenido <span id="userName"></span></h3>
+      <h2>Bienvenido <span id="userName"></span></h2>
       <button onclick="logout()">Cerrar sesión</button>
     </div>
   </div>
 
   <div class="container hidden" id="comentarios">
-    <h2>💬 Comentarios</h2>
-    <form id="commentForm" class="card">
-      <textarea id="text" rows="3" placeholder="Escribe tu comentario..." required></textarea>
-      <button type="submit">Publicar</button>
-    </form>
+    <div class="card">
+      <h2>💬 Nuevo comentario</h2>
+      <form id="commentForm">
+        <textarea id="text" rows="3" placeholder="Escribe tu comentario..." required></textarea>
+        <button type="submit">Publicar</button>
+      </form>
+    </div>
     <div id="comments"></div>
   </div>
 
-  <div class="container" id="admin">
-    <div id="adminPanel">
-      <h2>⚙️ Panel de Administrador</h2>
-      <div id="adminComments"></div>
-    </div>
-  </div>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
   <script>
-    // Configuración de Firebase
-    const firebaseConfig = { 
-      apiKey: "AIzaSyBwj_as6pb5Bg81F9Cl9VWTKkekMM9Exfk",
-      authDomain: "pekora-forum.firebaseapp.com",
-      projectId: "pekora-forum",
-      storageBucket: "pekora-forum.appspot.com",
-      messagingSenderId: "161910967859",
-      appId: "1:161910967859:web:d91e68d48a6be3b1e9dd46"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
     let currentUser = null;
 
-    // Guardar sesión
     function setSession(username) {
       currentUser = username;
       localStorage.setItem("user", username);
@@ -119,33 +144,30 @@
       document.getElementById("comentarios").classList.remove("hidden");
       document.getElementById("registerCard").classList.add("hidden");
       document.getElementById("loginCard").classList.add("hidden");
+      loadComments();
     }
 
-    async function register() {
+    function register() {
       const username = document.getElementById("regUser").value.trim();
       const password = document.getElementById("regPass").value.trim();
+      if (!username || !password) return alert("Completa todos los campos");
 
-      if (!username || !password) return alert("Completa los campos");
+      let users = JSON.parse(localStorage.getItem("users")) || {};
+      if (users[username]) return alert("Ese usuario ya existe");
 
-      const userDoc = await db.collection("users").doc(username).get();
-      if (userDoc.exists) {
-        alert("Ese nombre de usuario ya está en uso");
-        return;
-      }
-
-      await db.collection("users").doc(username).set({ password });
+      users[username] = password;
+      localStorage.setItem("users", JSON.stringify(users));
       setSession(username);
-      alert("✅ Cuenta creada y sesión iniciada");
+      alert("✅ Cuenta creada con éxito");
     }
 
-    async function login() {
+    function login() {
       const username = document.getElementById("logUser").value.trim();
       const password = document.getElementById("logPass").value.trim();
+      let users = JSON.parse(localStorage.getItem("users")) || {};
 
-      const userDoc = await db.collection("users").doc(username).get();
-      if (!userDoc.exists || userDoc.data().password !== password) {
-        alert("❌ Usuario o contraseña incorrectos");
-        return;
+      if (!users[username] || users[username] !== password) {
+        return alert("❌ Usuario o contraseña incorrectos");
       }
       setSession(username);
       alert("✅ Sesión iniciada");
@@ -160,82 +182,44 @@
       document.getElementById("loginCard").classList.remove("hidden");
     }
 
-    // Restaurar sesión al cargar
-    window.onload = () => {
-      const savedUser = localStorage.getItem("user");
-      if (savedUser) {
-        setSession(savedUser);
-      }
-    };
-
     // Comentarios
-    const form = document.getElementById("commentForm");
-    const commentsDiv = document.getElementById("comments");
-    const adminDiv = document.getElementById("adminComments");
-    const adminPanel = document.getElementById("adminPanel");
+    function saveComment(author, text) {
+      const comments = JSON.parse(localStorage.getItem("comments")) || [];
+      comments.push({ author, text, time: new Date().toLocaleString() });
+      localStorage.setItem("comments", JSON.stringify(comments));
+      loadComments();
+    }
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (!currentUser) return alert("Debes iniciar sesión");
-
-      const text = document.getElementById("text").value.trim();
-      if (text) {
-        await db.collection("comments").add({
-          author: currentUser,
-          text,
-          ts: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        form.reset();
-      }
-    });
-
-    db.collection("comments").orderBy("ts", "desc").onSnapshot(snapshot => {
+    function loadComments() {
+      const commentsDiv = document.getElementById("comments");
       commentsDiv.innerHTML = "";
-      adminDiv.innerHTML = "";
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const time = data.ts ? data.ts.toDate().toLocaleString() : "justo ahora";
-
+      const comments = JSON.parse(localStorage.getItem("comments")) || [];
+      comments.forEach(c => {
         const div = document.createElement("div");
         div.classList.add("comment");
         div.innerHTML = `
-          <div class="author">${data.author}</div>
-          <div class="time">${time}</div>
-          <div class="text">${data.text}</div>
+          <div class="author">${c.author}</div>
+          <div class="time">${c.time}</div>
+          <div class="text">${c.text}</div>
         `;
         commentsDiv.appendChild(div);
-
-        const adminComment = document.createElement("div");
-        adminComment.classList.add("admin-comment");
-        adminComment.innerHTML = `
-          <span><b>${data.author}</b>: ${data.text}</span>
-          <button onclick="deleteComment('${doc.id}')">Eliminar</button>
-        `;
-        adminDiv.appendChild(adminComment);
       });
-    });
-
-    async function deleteComment(id) {
-      if(confirm("¿Seguro que quieres eliminar este comentario?")) {
-        await db.collection("comments").doc(id).delete();
-      }
     }
 
-    // Panel admin con F9
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "F9") {
-        if(adminPanel.style.display === "block") {
-          adminPanel.style.display = "none";
-        } else {
-          const pass = prompt("🔑 Ingresa la contraseña de admin:");
-          if(pass === "cracky1010") {
-            adminPanel.style.display = "block";
-          } else {
-            alert("❌ Contraseña incorrecta");
-          }
-        }
+    document.getElementById("commentForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const text = document.getElementById("text").value.trim();
+      if (text && currentUser) {
+        saveComment(currentUser, text);
+        document.getElementById("text").value = "";
       }
     });
+
+    // Restaurar sesión al cargar
+    window.onload = () => {
+      const savedUser = localStorage.getItem("user");
+      if (savedUser) setSession(savedUser);
+    };
   </script>
 </body>
 </html>
