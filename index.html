@@ -3,242 +3,193 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pekora Forum</title>
+  <title>Foro Pekora</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0d0d0d;
-      color: #f1f1f1;
-    }
-    header {
-      background: #111;
-      padding: 20px;
-      text-align: center;
-      border-bottom: 2px solid #00aaff;
-    }
-    header h1 { margin: 0; color: #00aaff; }
-    .container { max-width: 800px; margin: 20px auto; padding: 20px; }
-    .card {
-      background: #1a1a1a;
-      padding: 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
-    }
-    input, textarea, button, select {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-    input, textarea, select { background: #2a2a2a; color: #fff; }
-    button {
-      background: #00aaff; color: white; font-weight: bold; cursor: pointer;
-    }
-    button:hover { background: #0077aa; }
-    .hidden { display: none; }
-    .comment {
-      background: #2a2a2a;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-    }
-    .author { font-weight: bold; }
-    .rank-admin { color: #ff4444; }
-    .rank-mod { color: #44aaff; }
-    .rank-vip { color: gold; }
+    body { margin:0; font-family: Arial, sans-serif; background:#111; color:white; }
+    header { background:#000; padding:15px; text-align:center; font-size:24px; font-weight:bold; }
+    .container { max-width:800px; margin:40px auto; padding:20px; background:#1e1e1e; border-radius:8px; }
+    h2 { margin-bottom:10px; }
+    input,button,textarea,select { width:100%; padding:10px; margin:5px 0; border-radius:6px; border:none; }
+    input,textarea,select { background:#2d2d2d; color:white; }
+    button { background:#0d6efd; color:white; font-weight:bold; cursor:pointer; }
+    button:hover { background:#0b5ed7; }
+    .comment { background:#2c2c2c; padding:10px; border-radius:6px; margin:10px 0; }
+    .author { font-weight:bold; }
+    .rank { margin-left:8px; padding:2px 6px; border-radius:4px; font-size:12px; }
+    .rank.Admin { background:red; color:white; }
+    .rank.Moderador { background:blue; color:white; }
+    .rank.Usuario { background:green; color:white; }
+    .hidden { display:none; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>🌐 Pekora Forum</h1>
-  </header>
+  <header>💬 Foro Pekora</header>
 
-  <div class="container">
-    <!-- Login/Register -->
-    <div class="card" id="authCard">
-      <h2>🔑 Registro / Login</h2>
-      <input type="text" id="username" placeholder="Usuario" />
-      <input type="password" id="password" placeholder="Contraseña" />
-      <button onclick="register()">Registrarse</button>
-      <button onclick="login()">Iniciar Sesión</button>
-    </div>
+  <!-- Login / Registro -->
+  <div class="container" id="authContainer">
+    <h2>Iniciar sesión</h2>
+    <input type="text" id="loginUser" placeholder="Nombre de usuario">
+    <input type="password" id="loginPass" placeholder="Contraseña">
+    <button onclick="login()">Entrar</button>
+    <hr>
+    <h2>Registrar</h2>
+    <input type="text" id="registerUser" placeholder="Nombre de usuario">
+    <input type="password" id="registerPass" placeholder="Contraseña">
+    <button onclick="register()">Crear cuenta</button>
+  </div>
 
-    <!-- Panel usuario -->
-    <div class="card hidden" id="userPanel">
-      <h2>Bienvenido <span id="userName"></span></h2>
-      <button onclick="logout()">Cerrar sesión</button>
-    </div>
+  <!-- Foro -->
+  <div class="container hidden" id="forumContainer">
+    <h2>Comentarios</h2>
+    <form id="commentForm">
+      <textarea id="commentText" placeholder="Escribe tu comentario..." required></textarea>
+      <button type="submit">Publicar</button>
+    </form>
+    <div id="comments"></div>
+    <button onclick="logout()">Cerrar sesión</button>
 
     <!-- Panel Admin -->
-    <div class="card hidden" id="adminPanel">
+    <div id="adminPanel" class="hidden">
       <h2>⚙️ Panel de Admin</h2>
-      <input type="text" id="targetUser" placeholder="Usuario" />
-      <select id="rankSelect">
-        <option value="none">Sin rango</option>
-        <option value="admin">Admin</option>
-        <option value="mod">Mod</option>
-        <option value="vip">VIP</option>
+      <input type="text" id="rankUser" placeholder="Usuario (nombre)">
+      <select id="rankType">
+        <option value="Admin">Admin</option>
+        <option value="Moderador">Moderador</option>
+        <option value="Usuario">Usuario</option>
       </select>
-      <button onclick="setRank()">Asignar rango</button>
-    </div>
-
-    <!-- Comentarios -->
-    <div id="commentsSection" class="hidden">
-      <div class="card">
-        <h2>💬 Nuevo comentario</h2>
-        <form id="commentForm">
-          <textarea id="text" rows="3" placeholder="Escribe tu comentario..." required></textarea>
-          <button type="submit">Publicar</button>
-        </form>
-      </div>
-      <div id="comments"></div>
+      <button onclick="assignRank()">Asignar rango</button>
     </div>
   </div>
 
   <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc, setDoc, doc, getDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-    const firebaseConfig = {
+  <script>
+    // ✅ Config de tu Firebase
+    const firebaseConfig = { 
       apiKey: "AIzaSyBwj_as6pb5Bg81F9Cl9VWTKkekMM9Exfk",
       authDomain: "pekora-forum.firebaseapp.com",
       projectId: "pekora-forum",
-      storageBucket: "pekora-forum.firebasestorage.app",
+      storageBucket: "pekora-forum.appspot.com",
       messagingSenderId: "161910967859",
       appId: "1:161910967859:web:d91e68d48a6be3b1e9dd46"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const authContainer = document.getElementById("authContainer");
+    const forumContainer = document.getElementById("forumContainer");
+    const adminPanel = document.getElementById("adminPanel");
+    const commentsDiv = document.getElementById("comments");
 
     let currentUser = null;
 
-    // Registro
-    function register() {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
-      if (!username || !password) return alert("Completa todos los campos");
+    // 🔹 Registrar usuario
+    async function register() {
+      const username = document.getElementById("registerUser").value.trim();
+      const password = document.getElementById("registerPass").value;
+      if (!username || !password) return alert("Completa los campos");
 
-      let users = JSON.parse(localStorage.getItem("users")) || {};
-      if (users[username]) return alert("Ese usuario ya existe");
-
-      users[username] = password;
-      localStorage.setItem("users", JSON.stringify(users));
-      setSession(username);
-      alert("✅ Cuenta creada");
+      const userDoc = await db.collection("users").doc(username).get();
+      if (userDoc.exists) {
+        alert("Ese nombre ya está en uso");
+        return;
+      }
+      await db.collection("users").doc(username).set({ password });
+      alert("✅ Registrado con éxito, ahora inicia sesión");
     }
 
-    // Login
-    function login() {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
-      let users = JSON.parse(localStorage.getItem("users")) || {};
+    // 🔹 Login
+    async function login() {
+      const username = document.getElementById("loginUser").value.trim();
+      const password = document.getElementById("loginPass").value;
+      if (!username || !password) return alert("Completa los campos");
 
-      if (username === "Cracky") {
-        if (password !== "cracky1010") return alert("Contraseña incorrecta para Cracky");
-        setSession(username, true);
+      const userDoc = await db.collection("users").doc(username).get();
+      if (!userDoc.exists || userDoc.data().password !== password) {
+        alert("Usuario o contraseña incorrectos");
         return;
       }
 
-      if (!users[username] || users[username] !== password) {
-        return alert("❌ Usuario o contraseña incorrectos");
-      }
-      setSession(username, false);
-    }
-
-    // Sesión
-    function setSession(username, isAdmin = false) {
       currentUser = username;
-      localStorage.setItem("user", username);
-
-      document.getElementById("authCard").classList.add("hidden");
-      document.getElementById("userPanel").classList.remove("hidden");
-      document.getElementById("commentsSection").classList.remove("hidden");
-      document.getElementById("userName").textContent = username;
-
-      if (isAdmin) {
-        document.getElementById("adminPanel").classList.remove("hidden");
-      }
+      localStorage.setItem("pekoraUser", username);
+      showForum();
     }
 
+    // 🔹 Logout
     function logout() {
       currentUser = null;
-      localStorage.removeItem("user");
-      document.getElementById("authCard").classList.remove("hidden");
-      document.getElementById("userPanel").classList.add("hidden");
-      document.getElementById("commentsSection").classList.add("hidden");
-      document.getElementById("adminPanel").classList.add("hidden");
+      localStorage.removeItem("pekoraUser");
+      authContainer.classList.remove("hidden");
+      forumContainer.classList.add("hidden");
     }
 
-    // Asignar rango
-    async function setRank() {
-      const user = document.getElementById("targetUser").value.trim();
-      const rank = document.getElementById("rankSelect").value;
-      if (!user) return alert("Escribe un usuario");
+    // 🔹 Mantener sesión
+    window.onload = () => {
+      const saved = localStorage.getItem("pekoraUser");
+      if (saved) {
+        currentUser = saved;
+        showForum();
+      }
+    };
 
-      await setDoc(doc(db, "ranks", user), { rank });
-      alert(`✅ ${user} ahora tiene rango ${rank}`);
+    // 🔹 Mostrar foro
+    function showForum() {
+      authContainer.classList.add("hidden");
+      forumContainer.classList.remove("hidden");
+
+      if (currentUser === "Cracky") {
+        adminPanel.classList.remove("hidden");
+      } else {
+        adminPanel.classList.add("hidden");
+      }
+
+      loadComments();
     }
 
-    // Guardar comentario
-    async function saveComment(author, text) {
-      await addDoc(collection(db, "comments"), {
-        author,
-        text,
-        time: new Date().toLocaleString()
-      });
-    }
+    // 🔹 Publicar comentario
+    document.getElementById("commentForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const text = document.getElementById("commentText").value.trim();
+      if (!currentUser) return alert("Debes iniciar sesión");
+      if (text) {
+        await db.collection("comments").add({
+          author: currentUser,
+          text,
+          ts: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById("commentForm").reset();
+      }
+    });
 
-    // Cargar comentarios
+    // 🔹 Cargar comentarios
     function loadComments() {
-      const commentsDiv = document.getElementById("comments");
-      const q = query(collection(db, "comments"), orderBy("time"));
-      onSnapshot(q, async snapshot => {
+      db.collection("comments").orderBy("ts","desc").onSnapshot(async snap => {
         commentsDiv.innerHTML = "";
-        for (const docSnap of snapshot.docs) {
-          const c = docSnap.data();
-          const rankDoc = await getDoc(doc(db, "ranks", c.author));
-          let rank = rankDoc.exists() ? rankDoc.data().rank : "none";
-
+        for (let doc of snap.docs) {
+          const data = doc.data();
+          const rankDoc = await db.collection("ranks").doc(data.author).get();
+          const rank = rankDoc.exists ? rankDoc.data().rank : "";
+          const rankHTML = rank ? `<span class="rank ${rank}">${rank}</span>` : "";
           const div = document.createElement("div");
           div.classList.add("comment");
-
-          let rankSpan = "";
-          if (rank === "admin") rankSpan = `<span class="rank-admin">[Admin]</span>`;
-          if (rank === "mod") rankSpan = `<span class="rank-mod">[Mod]</span>`;
-          if (rank === "vip") rankSpan = `<span class="rank-vip">[VIP]</span>`;
-
-          div.innerHTML = `
-            <div class="author">${c.author} ${rankSpan}</div>
-            <div class="time">${c.time}</div>
-            <div class="text">${c.text}</div>
-          `;
+          div.innerHTML = `<div class="author">${data.author}${rankHTML}</div>
+                           <div>${data.text}</div>`;
           commentsDiv.appendChild(div);
         }
       });
     }
 
-    document.getElementById("commentForm").addEventListener("submit", e => {
-      e.preventDefault();
-      const text = document.getElementById("text").value.trim();
-      if (text && currentUser) {
-        saveComment(currentUser, text);
-        document.getElementById("text").value = "";
-      }
-    });
-
-    window.onload = () => {
-      const savedUser = localStorage.getItem("user");
-      if (savedUser) {
-        setSession(savedUser, savedUser === "Cracky");
-      }
-      loadComments();
-    };
+    // 🔹 Asignar rango
+    async function assignRank() {
+      const userName = document.getElementById("rankUser").value.trim();
+      const rank = document.getElementById("rankType").value;
+      if (!userName) return alert("Debes poner un usuario");
+      await db.collection("ranks").doc(userName).set({ rank });
+      alert("Rango asignado con éxito a " + userName);
+    }
   </script>
 </body>
 </html>
