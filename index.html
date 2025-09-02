@@ -1,55 +1,37 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pekora Forum</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
       margin: 0;
+      font-family: Arial, sans-serif;
       background: #0d0d0d;
       color: #f1f1f1;
     }
     header {
       background: #111;
-      padding: 30px;
+      padding: 20px;
       text-align: center;
       border-bottom: 2px solid #00aaff;
     }
     header h1 {
       margin: 0;
-      font-size: 2rem;
       color: #00aaff;
-    }
-    nav {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      background: #1a1a1a;
-      padding: 15px;
-      border-bottom: 2px solid #222;
-    }
-    nav a {
-      color: #00aaff;
-      text-decoration: none;
-      font-weight: bold;
-      transition: 0.2s;
-    }
-    nav a:hover {
-      color: #66d9ff;
     }
     .container {
       max-width: 700px;
-      margin: 30px auto;
+      margin: 20px auto;
       padding: 20px;
     }
     .card {
       background: #1a1a1a;
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      border-radius: 10px;
       margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
     }
     input, textarea, button {
       width: 100%;
@@ -65,10 +47,9 @@
     }
     button {
       background: #00aaff;
-      color: #fff;
+      color: white;
       font-weight: bold;
       cursor: pointer;
-      transition: 0.3s;
     }
     button:hover {
       background: #0077aa;
@@ -76,8 +57,8 @@
     .hidden { display: none; }
     .comment {
       background: #2a2a2a;
-      padding: 15px;
-      border-radius: 10px;
+      padding: 12px;
+      border-radius: 8px;
       margin-bottom: 12px;
     }
     .comment .author {
@@ -89,67 +70,67 @@
       color: #aaa;
     }
     .comment .text {
-      margin-top: 8px;
+      margin-top: 5px;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>🌐 Pekora Forum</h1>
+    <h1>🌐 Pekora Forums</h1>
   </header>
 
-  <nav>
-    <a href="#auth">Cuenta</a>
-    <a href="#comentarios">Comentarios</a>
-  </nav>
+  <div class="container">
+    <div class="card" id="authCard">
+      <h2>🔑 Registro / Login</h2>
+      <input type="text" id="username" placeholder="Usuario" />
+      <input type="password" id="password" placeholder="Contraseña" />
+      <button onclick="register()">Register</button>
+      <button onclick="login()">Login</button>
+    </div>
 
-  <div class="container" id="auth">
-    <div class="card" id="registerCard">
-      <h2>🔑 Registrarse</h2>
-      <input type="text" id="regUser" placeholder="Usuario" />
-      <input type="password" id="regPass" placeholder="Contraseña" />
-      <button onclick="register()">Crear cuenta</button>
-    </div>
-    <div class="card" id="loginCard">
-      <h2>👤 Iniciar Sesión</h2>
-      <input type="text" id="logUser" placeholder="Usuario" />
-      <input type="password" id="logPass" placeholder="Contraseña" />
-      <button onclick="login()">Entrar</button>
-    </div>
     <div class="card hidden" id="userPanel">
       <h2>Bienvenido <span id="userName"></span></h2>
-      <button onclick="logout()">Cerrar sesión</button>
+      <button onclick="logout()">Sign out</button>
+    </div>
+
+    <div id="commentsSection" class="hidden">
+      <div class="card">
+        <h2>💬 New comment</h2>
+        <form id="commentForm">
+          <textarea id="text" rows="3" placeholder="Escribe tu comentario..." required></textarea>
+          <button type="submit">Post</button>
+        </form>
+      </div>
+      <div id="comments"></div>
     </div>
   </div>
 
-  <div class="container hidden" id="comentarios">
-    <div class="card">
-      <h2>💬 Nuevo comentario</h2>
-      <form id="commentForm">
-        <textarea id="text" rows="3" placeholder="Escribe tu comentario..." required></textarea>
-        <button type="submit">Publicar</button>
-      </form>
-    </div>
-    <div id="comments"></div>
-  </div>
+  <!-- Firebase -->
+  <script type="module">
+    // Importar Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  <script>
+    // Tu configuración
+    const firebaseConfig = {
+      apiKey: "AIzaSyBwj_as6pb5Bg81F9Cl9VWTKkekMM9Exfk",
+      authDomain: "pekora-forum.firebaseapp.com",
+      projectId: "pekora-forum",
+      storageBucket: "pekora-forum.firebasestorage.app",
+      messagingSenderId: "161910967859",
+      appId: "1:161910967859:web:d91e68d48a6be3b1e9dd46"
+    };
+
+    // Inicializar
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     let currentUser = null;
 
-    function setSession(username) {
-      currentUser = username;
-      localStorage.setItem("user", username);
-      document.getElementById("userName").textContent = username;
-      document.getElementById("userPanel").classList.remove("hidden");
-      document.getElementById("comentarios").classList.remove("hidden");
-      document.getElementById("registerCard").classList.add("hidden");
-      document.getElementById("loginCard").classList.add("hidden");
-      loadComments();
-    }
-
+    // Guardar usuarios en localStorage (simulación simple)
     function register() {
-      const username = document.getElementById("regUser").value.trim();
-      const password = document.getElementById("regPass").value.trim();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
       if (!username || !password) return alert("Completa todos los campos");
 
       let users = JSON.parse(localStorage.getItem("users")) || {};
@@ -162,10 +143,9 @@
     }
 
     function login() {
-      const username = document.getElementById("logUser").value.trim();
-      const password = document.getElementById("logPass").value.trim();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
       let users = JSON.parse(localStorage.getItem("users")) || {};
-
       if (!users[username] || users[username] !== password) {
         return alert("❌ Usuario o contraseña incorrectos");
       }
@@ -173,36 +153,49 @@
       alert("✅ Sesión iniciada");
     }
 
+    function setSession(username) {
+      currentUser = username;
+      localStorage.setItem("user", username);
+      document.getElementById("authCard").classList.add("hidden");
+      document.getElementById("userPanel").classList.remove("hidden");
+      document.getElementById("commentsSection").classList.remove("hidden");
+      document.getElementById("userName").textContent = username;
+    }
+
     function logout() {
       currentUser = null;
       localStorage.removeItem("user");
+      document.getElementById("authCard").classList.remove("hidden");
       document.getElementById("userPanel").classList.add("hidden");
-      document.getElementById("comentarios").classList.add("hidden");
-      document.getElementById("registerCard").classList.remove("hidden");
-      document.getElementById("loginCard").classList.remove("hidden");
+      document.getElementById("commentsSection").classList.add("hidden");
     }
 
-    // Comentarios
-    function saveComment(author, text) {
-      const comments = JSON.parse(localStorage.getItem("comments")) || [];
-      comments.push({ author, text, time: new Date().toLocaleString() });
-      localStorage.setItem("comments", JSON.stringify(comments));
-      loadComments();
+    // Guardar comentario en Firestore
+    async function saveComment(author, text) {
+      await addDoc(collection(db, "comments"), {
+        author,
+        text,
+        time: new Date().toLocaleString()
+      });
     }
 
+    // Mostrar comentarios en tiempo real
     function loadComments() {
       const commentsDiv = document.getElementById("comments");
-      commentsDiv.innerHTML = "";
-      const comments = JSON.parse(localStorage.getItem("comments")) || [];
-      comments.forEach(c => {
-        const div = document.createElement("div");
-        div.classList.add("comment");
-        div.innerHTML = `
-          <div class="author">${c.author}</div>
-          <div class="time">${c.time}</div>
-          <div class="text">${c.text}</div>
-        `;
-        commentsDiv.appendChild(div);
+      const q = query(collection(db, "comments"), orderBy("time"));
+      onSnapshot(q, snapshot => {
+        commentsDiv.innerHTML = "";
+        snapshot.forEach(doc => {
+          const c = doc.data();
+          const div = document.createElement("div");
+          div.classList.add("comment");
+          div.innerHTML = `
+            <div class="author">${c.author}</div>
+            <div class="time">${c.time}</div>
+            <div class="text">${c.text}</div>
+          `;
+          commentsDiv.appendChild(div);
+        });
       });
     }
 
@@ -218,7 +211,10 @@
     // Restaurar sesión al cargar
     window.onload = () => {
       const savedUser = localStorage.getItem("user");
-      if (savedUser) setSession(savedUser);
+      if (savedUser) {
+        setSession(savedUser);
+      }
+      loadComments();
     };
   </script>
 </body>
