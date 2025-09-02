@@ -5,36 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pekora Forum</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f5f6fa; margin: 0; padding: 0; }
-    header { background: #0984e3; color: #fff; padding: 15px; text-align: center; }
-    header h1 { margin: 0; }
-    nav { background: #74b9ff; display: flex; justify-content: center; gap: 20px; padding: 10px; }
-    nav a { color: white; text-decoration: none; font-weight: bold; }
-    nav a:hover { text-decoration: underline; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #f5f6fa; color: #2d3436; }
+    header {
+      background: linear-gradient(135deg, #6c5ce7, #00cec9);
+      color: #fff; padding: 60px 20px; text-align: center;
+    }
+    header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+    header p { font-size: 1.2rem; opacity: 0.9; }
 
-    .container { width: 100%; max-width: 700px; margin: 20px auto; padding: 20px; }
-    form { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    input, textarea, button { width: 100%; padding: 10px; margin: 5px 0; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; }
-    button { background: #0984e3; color: #fff; font-weight: bold; border: none; cursor: pointer; }
-    button:hover { background: #74b9ff; }
+    nav { background: #2d3436; display: flex; justify-content: center; gap: 20px; padding: 12px; }
+    nav a { color: #dfe6e9; text-decoration: none; font-weight: 600; }
+    nav a:hover { color: #00cec9; }
 
-    .comment { background: #fff; padding: 12px; margin-bottom: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .comment .author { font-weight: bold; color: #2d3436; }
-    .comment .time { font-size: 12px; color: #636e72; }
-    .comment .text { margin-top: 5px; }
+    .container { width: 100%; max-width: 800px; margin: 30px auto; padding: 20px; }
+    h2 { border-left: 5px solid #6c5ce7; padding-left: 10px; }
 
-    /* Admin Panel oculto */
-    #adminPanel { display: none; background: #fff3cd; padding: 20px; border-radius: 8px; border: 2px solid #f39c12; }
+    /* Botón destacado */
+    .btn-primary {
+      display: inline-block;
+      background: #6c5ce7;
+      color: white; padding: 12px 20px;
+      font-size: 1rem; border-radius: 6px;
+      text-decoration: none; font-weight: bold;
+      transition: 0.2s;
+    }
+    .btn-primary:hover { background: #341f97; }
+
+    /* Tarjetas inicio */
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 20px; }
+    .feature { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); text-align: center; }
+    .feature h3 { margin-top: 0; color: #6c5ce7; }
+
+    /* Comentarios */
+    form { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    input, textarea, button { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; }
+    button { background: #6c5ce7; color: #fff; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; }
+    button:hover { background: #341f97; }
+
+    .comment { background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
+    .comment .author { font-weight: bold; color: #6c5ce7; }
+    .comment .time { font-size: 12px; color: #636e72; margin-top: 5px; }
+    .comment .text { margin-top: 10px; }
+
+    /* Admin Panel */
+    #adminPanel { display: none; background: #ffeaa7; padding: 20px; border-radius: 10px; border: 2px solid #f39c12; margin-top: 20px; }
     #adminPanel h2 { margin-top: 0; color: #d35400; }
-    .admin-comment { background: #ffeaa7; padding: 10px; margin: 5px 0; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
-    .admin-comment button { width: auto; background: #d63031; margin-left: 10px; }
+    .admin-comment { background: #ffeaa7; padding: 10px; margin: 5px 0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+    .admin-comment button { width: auto; background: #d63031; margin-left: 10px; border-radius: 6px; }
     .admin-comment button:hover { background: #ff7675; }
   </style>
 </head>
 <body>
   <header>
     <h1>🌐 Pekora Forum</h1>
-    <p>Un lugar para comentar y compartir</p>
+    <p>Comparte tus ideas, comenta en tiempo real y conecta con la comunidad</p>
+    <a href="#comentarios" class="btn-primary">👉 Empieza a comentar</a>
   </header>
 
   <nav>
@@ -45,7 +70,21 @@
 
   <div class="container" id="inicio">
     <h2>Bienvenido</h2>
-    <p>Este es un foro experimental donde puedes dejar tus comentarios en tiempo real.</p>
+    <p>Pekora Forum es un espacio abierto donde todos pueden dejar sus comentarios. 💬</p>
+    <div class="features">
+      <div class="feature">
+        <h3>🚀 En tiempo real</h3>
+        <p>Los comentarios aparecen instantáneamente sin refrescar la página.</p>
+      </div>
+      <div class="feature">
+        <h3>🔒 Admin seguro</h3>
+        <p>Solo el administrador puede borrar comentarios con una clave secreta.</p>
+      </div>
+      <div class="feature">
+        <h3>🌍 Comunidad</h3>
+        <p>Comparte tus ideas con todos los usuarios conectados al foro.</p>
+      </div>
+    </div>
   </div>
 
   <div class="container" id="comentarios">
@@ -61,7 +100,6 @@
   <div class="container" id="admin">
     <div id="adminPanel">
       <h2>⚙️ Panel de Administrador</h2>
-      <p>Aquí puedes gestionar los comentarios.</p>
       <div id="adminComments"></div>
     </div>
   </div>
@@ -71,7 +109,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
-    // ✅ Configuración de tu Firebase
     const firebaseConfig = { 
       apiKey: "AIzaSyBwj_as6pb5Bg81F9Cl9VWTKkekMM9Exfk",
       authDomain: "pekora-forum.firebaseapp.com",
@@ -89,10 +126,8 @@
     const adminDiv = document.getElementById("adminComments");
     const adminPanel = document.getElementById("adminPanel");
 
-    // Guardar autor en localStorage
     document.getElementById("author").value = localStorage.getItem("author") || "";
 
-    // Agregar comentario
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const author = document.getElementById("author").value.trim();
@@ -109,7 +144,6 @@
       }
     });
 
-    // Mostrar comentarios en vivo
     db.collection("comments").orderBy("ts", "desc").onSnapshot(snapshot => {
       commentsDiv.innerHTML = "";
       adminDiv.innerHTML = "";
@@ -117,7 +151,6 @@
         const data = doc.data();
         const time = data.ts ? data.ts.toDate().toLocaleString() : "justo ahora";
 
-        // Usuario normal
         const div = document.createElement("div");
         div.classList.add("comment");
         div.innerHTML = `
@@ -127,7 +160,6 @@
         `;
         commentsDiv.appendChild(div);
 
-        // Admin panel
         const adminComment = document.createElement("div");
         adminComment.classList.add("admin-comment");
         adminComment.innerHTML = `
@@ -138,14 +170,12 @@
       });
     });
 
-    // Función eliminar comentario
     async function deleteComment(id) {
       if(confirm("¿Seguro que quieres eliminar este comentario?")) {
         await db.collection("comments").doc(id).delete();
       }
     }
 
-    // Mostrar/Ocultar panel admin con F9 + contraseña
     document.addEventListener("keydown", (e) => {
       if(e.key === "F9") {
         if(adminPanel.style.display === "block") {
