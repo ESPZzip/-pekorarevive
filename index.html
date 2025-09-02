@@ -2,98 +2,50 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Pekora Forum</title>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #eee;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      height: 100vh;
-    }
-    header {
-      width: 100%;
-      background: #222;
-      padding: 15px;
-      text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-      color: #0ff;
-    }
-    .container {
-      margin-top: 20px;
-      background: #1a1a1a;
-      padding: 20px;
-      border-radius: 10px;
-      width: 400px;
-      text-align: center;
-      box-shadow: 0 0 15px rgba(0,255,255,0.2);
-    }
-    input {
-      display: block;
-      margin: 10px auto;
-      padding: 10px;
-      width: 80%;
-      border: none;
-      border-radius: 5px;
-    }
-    button {
-      margin: 10px;
-      padding: 10px 20px;
-      background: #0ff;
-      color: #000;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    button:hover {
-      background: #0cc;
-    }
-    #comments {
-      margin-top: 20px;
-      width: 90%;
-      max-width: 600px;
-      background: #1a1a1a;
-      padding: 20px;
-      border-radius: 10px;
-    }
-    .comment {
-      padding: 8px;
-      border-bottom: 1px solid #333;
-    }
-  </style>
+  <title>Foro Pekora</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <header>Pekora Forum</header>
+<body class="bg-gray-900 text-gray-200 font-sans">
+  <!-- Barra superior -->
+  <header class="bg-gray-800 shadow-md p-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-purple-400">✨ Foro Pekora</h1>
+    <nav>
+      <button onclick="showSection('loginSection')" class="mx-2 px-4 py-2 rounded bg-purple-600 hover:bg-purple-500">Login</button>
+      <button onclick="showSection('registerSection')" class="mx-2 px-4 py-2 rounded bg-green-600 hover:bg-green-500">Registro</button>
+      <button onclick="logout()" class="mx-2 px-4 py-2 rounded bg-red-600 hover:bg-red-500">Salir</button>
+    </nav>
+  </header>
 
-  <div class="container" id="auth">
-    <h2>Registro</h2>
-    <input type="text" id="regName" placeholder="Nombre de usuario">
-    <input type="password" id="regPass" placeholder="Contraseña">
-    <button onclick="register()">Registrar</button>
+  <!-- Login -->
+  <section id="loginSection" class="p-6 max-w-md mx-auto mt-8 bg-gray-800 rounded-2xl shadow-lg">
+    <h2 class="text-xl font-semibold text-purple-300 mb-4">Iniciar Sesión</h2>
+    <input id="loginName" type="text" placeholder="Usuario" class="w-full mb-3 p-2 rounded bg-gray-700 border border-gray-600">
+    <input id="loginPass" type="password" placeholder="Contraseña" class="w-full mb-3 p-2 rounded bg-gray-700 border border-gray-600">
+    <button onclick="login()" class="w-full px-4 py-2 bg-purple-600 rounded hover:bg-purple-500">Entrar</button>
+  </section>
 
-    <h2>Login</h2>
-    <input type="text" id="logName" placeholder="Nombre de usuario">
-    <input type="password" id="logPass" placeholder="Contraseña">
-    <button onclick="login()">Iniciar Sesión</button>
-  </div>
+  <!-- Registro -->
+  <section id="registerSection" class="p-6 max-w-md mx-auto mt-8 bg-gray-800 rounded-2xl shadow-lg hidden">
+    <h2 class="text-xl font-semibold text-green-300 mb-4">Crear Cuenta</h2>
+    <input id="regName" type="text" placeholder="Usuario" class="w-full mb-3 p-2 rounded bg-gray-700 border border-gray-600">
+    <input id="regPass" type="password" placeholder="Contraseña" class="w-full mb-3 p-2 rounded bg-gray-700 border border-gray-600">
+    <button onclick="register()" class="w-full px-4 py-2 bg-green-600 rounded hover:bg-green-500">Registrar</button>
+  </section>
 
-  <div class="container" id="forum" style="display:none;">
-    <h2>Bienvenido, <span id="username"></span></h2>
-    <textarea id="commentText" placeholder="Escribe un comentario..." style="width:90%;height:60px;"></textarea><br>
-    <button onclick="postComment()">Publicar</button>
-    <div id="comments"></div>
-  </div>
+  <!-- Panel principal -->
+  <section id="mainSection" class="p-6 max-w-2xl mx-auto mt-8 bg-gray-800 rounded-2xl shadow-lg hidden">
+    <h2 class="text-xl font-semibold text-blue-300 mb-4">Comentarios</h2>
+    <div class="flex mb-4">
+      <input id="commentInput" type="text" placeholder="Escribe tu comentario..." class="flex-1 p-2 rounded-l bg-gray-700 border border-gray-600">
+      <button onclick="postComment()" class="px-4 py-2 bg-blue-600 rounded-r hover:bg-blue-500">Enviar</button>
+    </div>
+    <div id="comments" class="space-y-4"></div>
+  </section>
 
   <script>
-    // Config de Firebase
+    // Config Firebase
     const firebaseConfig = { 
       apiKey: "AIzaSyBwj_as6pb5Bg81F9Cl9VWTKkekMM9Exfk",
       authDomain: "pekora-forum.firebaseapp.com",
@@ -106,6 +58,13 @@
     const db = firebase.firestore();
 
     let currentUser = null;
+
+    function showSection(id) {
+      document.getElementById("loginSection").classList.add("hidden");
+      document.getElementById("registerSection").classList.add("hidden");
+      document.getElementById("mainSection").classList.add("hidden");
+      document.getElementById(id).classList.remove("hidden");
+    }
 
     async function register() {
       const name = document.getElementById("regName").value.trim();
@@ -120,80 +79,83 @@
         } else {
           await userRef.set({ password: pass, rank: "Usuario" });
           alert("Registrado con éxito, ahora inicia sesión");
+          showSection("loginSection");
         }
-      } catch (error) {
-        console.error("Error en registro:", error);
-        alert("Error al registrar: " + error.message);
+      } catch (e) {
+        console.error(e);
+        alert("Error al registrar");
       }
     }
 
     async function login() {
-      const name = document.getElementById("logName").value.trim();
-      const pass = document.getElementById("logPass").value.trim();
+      const name = document.getElementById("loginName").value.trim();
+      const pass = document.getElementById("loginPass").value.trim();
       if (!name || !pass) return alert("Completa todos los campos");
 
       try {
         const userRef = db.collection("users").doc(name);
         const doc = await userRef.get();
-        if (!doc.exists) {
-          alert("Usuario no encontrado");
+        if (!doc.exists || doc.data().password !== pass) {
+          alert("Usuario o contraseña incorrectos");
           return;
         }
-        const data = doc.data();
-        if (data.password === pass) {
-          currentUser = { name, ...data };
-          localStorage.setItem("user", JSON.stringify(currentUser));
-          showForum();
-        } else {
-          alert("Contraseña incorrecta");
-        }
-      } catch (error) {
-        console.error("Error en login:", error);
-        alert("Error al iniciar sesión: " + error.message);
+        currentUser = { name, rank: doc.data().rank || "Usuario" };
+        localStorage.setItem("user", JSON.stringify(currentUser));
+        showSection("mainSection");
+        loadComments();
+      } catch (e) {
+        console.error(e);
+        alert("Error al iniciar sesión");
       }
     }
 
-    function showForum() {
-      document.getElementById("auth").style.display = "none";
-      document.getElementById("forum").style.display = "block";
-      document.getElementById("username").innerText = currentUser.rank + " " + currentUser.name;
-      loadComments();
+    function logout() {
+      currentUser = null;
+      localStorage.removeItem("user");
+      showSection("loginSection");
     }
 
     async function postComment() {
-      const text = document.getElementById("commentText").value.trim();
+      if (!currentUser) return alert("Debes iniciar sesión");
+      const text = document.getElementById("commentInput").value.trim();
       if (!text) return;
       await db.collection("comments").add({
         author: currentUser.name,
         rank: currentUser.rank,
         text,
-        ts: new Date()
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
       });
-      document.getElementById("commentText").value = "";
-      loadComments();
+      document.getElementById("commentInput").value = "";
     }
 
-    async function loadComments() {
-      const commentsDiv = document.getElementById("comments");
-      commentsDiv.innerHTML = "";
-      const snapshot = await db.collection("comments").orderBy("ts","desc").get();
-      snapshot.forEach(doc => {
-        const c = doc.data();
-        const div = document.createElement("div");
-        div.className = "comment";
-        div.innerHTML = `<b style="color:#0ff">${c.rank} ${c.author}</b>: ${c.text}`;
-        commentsDiv.appendChild(div);
+    function loadComments() {
+      db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+        const commentsDiv = document.getElementById("comments");
+        commentsDiv.innerHTML = "";
+        snapshot.forEach(doc => {
+          const c = doc.data();
+          const rankColor = c.rank === "Admin" ? "text-red-400" : "text-gray-400";
+          commentsDiv.innerHTML += `
+            <div class="p-4 bg-gray-700 rounded-lg shadow">
+              <p><span class="font-bold text-purple-300">${c.author}</span> 
+                 <span class="${rankColor}">(${c.rank})</span></p>
+              <p class="mt-1">${c.text}</p>
+            </div>`;
+        });
       });
     }
 
-    // Mantener sesión
+    // Restaurar sesión
     window.onload = () => {
       const saved = localStorage.getItem("user");
       if (saved) {
         currentUser = JSON.parse(saved);
-        showForum();
+        showSection("mainSection");
+        loadComments();
+      } else {
+        showSection("loginSection");
       }
-    }
+    };
   </script>
 </body>
 </html>
