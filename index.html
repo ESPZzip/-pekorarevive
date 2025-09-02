@@ -3,421 +3,87 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pekora Forums — home</title>
-  <meta name="description" content="Página completa para postear comentarios usando solo HTML, CSS y JS con almacenamiento local." />
+  <title>Página de Comentarios — Firebase</title>
   <style>
-    :root{
-      --bg:#0f1220; --panel:#151935; --muted:#8fa3c7; --text:#e9eeff;
-      --accent:#6ea8fe; --accent-2:#b88cff; --danger:#ff6b6b; --ok:#30d158;
-      --border: #263055; --warn:#ffc857;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;height:100%;}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#0e1022, #0c1830 60%, #0b1d3a);
-      color:var(--text);}
-    .container{max-width:980px;margin:0 auto;padding:24px;}
-    header{display:flex;align-items:center;gap:16px;justify-content:space-between;margin-bottom:16px}
-    h1{font-size:clamp(20px,3.5vw,32px);margin:0}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.25);}
-    .card.pad{padding:16px}
-    .row{display:flex;gap:12px;flex-wrap:wrap}
-    .grow{flex:1}
-    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-    input,textarea,select,button{font:inherit;border-radius:12px;border:1px solid var(--border);background:#0e1330;color:var(--text)}
-    input,select{height:40px;padding:0 12px}
-    textarea{width:100%;min-height:100px;resize:vertical;padding:10px 12px}
-    button{padding:10px 14px;cursor:pointer;transition:.15s transform ease, .15s opacity ease}
-    button:hover{transform:translateY(-1px)}
-    button:disabled{opacity:.6;cursor:not-allowed}
-    .btn{background:linear-gradient(180deg,var(--accent),#3b7bff);border:none;color:white}
-    .btn.sec{background:#1a224a}
-    .btn.danger{background:linear-gradient(180deg,#ff7b7b,var(--danger))}
-    .btn.ok{background:linear-gradient(180deg,#65e6a6,var(--ok));color:#05120a}
-    .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .pill{padding:7px 10px;background:#11173a;border:1px solid var(--border);border-radius:999px;color:var(--muted)}
-    .muted{color:var(--muted)}
-    .comment{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:14px;border-bottom:1px dashed var(--border)}
-    .avatar{width:40px;height:40px;border-radius:10px;background:#0f1b4a;border:1px solid var(--border);display:grid;place-items:center;color:#a8b7e8;font-weight:700}
-    .comment .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .name{font-weight:700}
-    .actions{display:flex;gap:8px}
-    .chip{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--border);background:#0e1436;color:var(--muted)}
-    .reply{margin-left:48px;border-left:2px dashed var(--border)}
-    .hidden{opacity:.55;filter:saturate(.6)}
-    .notice{padding:10px 12px;border:1px dashed var(--border);border-radius:12px;background:#101842;color:var(--muted)}
-    .search{position:relative}
-    .search input{padding-left:36px}
-    .search .icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);opacity:.6}
-    .kbd{background:#0e1330;border:1px solid var(--border);padding:2px 6px;border-radius:6px}
-    .hr{height:1px;background:linear-gradient(90deg,transparent, #2b3a70, transparent);margin:8px 0}
-    .footer{margin-top:16px;display:flex;justify-content:space-between;align-items:center;color:var(--muted)}
-    .float-admin{position:fixed;right:14px;bottom:14px;opacity:.8}
-    .tag{font-size:11px;color:#d1d8ff;background:#1a214f;border:1px solid var(--border);border-radius:8px;padding:2px 6px}
-    .danger-text{color:#ff9aa0}
-    .ok-text{color:#7cffc4}
+    body{font-family:sans-serif;background:#0f1220;color:#fff;margin:0;padding:0}
+    .container{max-width:700px;margin:0 auto;padding:20px}
+    h1{margin:0 0 20px}
+    .card{background:#151935;border-radius:10px;padding:16px;margin-bottom:16px}
+    input,textarea,button{width:100%;margin:6px 0;padding:10px;border-radius:6px;border:none;font:inherit}
+    input,textarea{background:#0e1330;color:#fff}
+    button{background:#3b7bff;color:#fff;cursor:pointer}
+    button:hover{opacity:0.9}
+    .comment{border-bottom:1px solid #2a2a4a;padding:8px 0}
+    .meta{font-size:12px;color:#aaa}
   </style>
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Importa los módulos de Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // 🚨 Reemplaza con tu propia configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_PROYECTO.firebaseapp.com",
+      projectId: "TU_PROYECTO",
+      storageBucket: "TU_PROYECTO.appspot.com",
+      messagingSenderId: "ID",
+      appId: "APP_ID"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const form = document.addEventListener('DOMContentLoaded', ()=>{
+      const form = document.getElementById('commentForm');
+      const nameEl = document.getElementById('name');
+      const contentEl = document.getElementById('content');
+      const list = document.getElementById('comments');
+
+      // Publicar comentario
+      form.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const name = nameEl.value.trim() || "Anónimo";
+        const text = contentEl.value.trim();
+        if(!text) return;
+        await addDoc(collection(db, "comments"), {
+          author: name,
+          text: text,
+          ts: serverTimestamp()
+        });
+        contentEl.value = "";
+      });
+
+      // Escuchar en tiempo real
+      const q = query(collection(db, "comments"), orderBy("ts", "desc"));
+      onSnapshot(q, (snapshot)=>{
+        list.innerHTML = "";
+        snapshot.forEach(doc=>{
+          const c = doc.data();
+          const div = document.createElement('div');
+          div.className = 'comment';
+          div.innerHTML = `<div><b>${c.author}</b></div><div>${c.text}</div><div class="meta">${c.ts?.toDate? c.ts.toDate().toLocaleString(): ''}</div>`;
+          list.appendChild(div);
+        });
+      });
+    });
+  </script>
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>💬 Forum</h1>
-      <div class="toolbar">
-        <div class="pill">This is fan web! <span class="kbd"></span> </div>
-      </div>
-    </header>
-
-    <!-- Public Forums -->
-    <section class="card pad" id="composer">
+    <h1>💬 Comentarios (Firebase)</h1>
+    <div class="card">
       <form id="commentForm">
-        <div class="row">
-          <div class="grow">
-            <label>Name</label>
-            <input id="name" placeholder="Tu nombre" maxlength="30" required />
-          </div>
-          <div>
-            <label>sort by</label>
-            <select id="sortBy">
-              <option value="new">Most recent</option>
-              <option value="top">best rated</option>
-              <option value="old">Older</option>
-            </select>
-          </div>
-        </div>
-        <label class="mt8">Message</label>
-        <textarea id="content" placeholder="Write your comment" maxlength="1000" required></textarea>
-        <div class="row" style="align-items:center;justify-content:space-between;margin-top:8px">
-          <div class="search grow">
-            <span class="icon">🔎</span>
-            <input id="search" placeholder="Search in comments… (enter para limpiar)" />
-          </div>
-          <div class="actions">
-            <button type="button" class="btn sec" id="cancelReply" style="display:none">Cancel reply</button>
-            <button type="submit" class="btn" id="submitBtn">Post</button>
-          </div>
-        </div>
-        <div class="hr"></div>
-        <div class="notice" id="composerNotice">Your posts are saved on this device. There is no server.</div>
+        <input id="name" placeholder="Tu nombre" maxlength="30" required />
+        <textarea id="content" placeholder="Escribe tu comentario" maxlength="500" required></textarea>
+        <button type="submit">Publicar</button>
       </form>
-    </section>
-
-    <!-- Comment List -->
-    <section class="card pad" style="margin-top:16px">
-      <div id="stats" class="muted" style="margin-bottom:8px"></div>
-      <div id="comments"></div>
-      <div class="footer">
-        <span class="muted">Made by Cracky10 on discord</span>
-        <button id="loadMore" class="btn sec">Load more</button>
-      </div>
-    </section>
-
-    <!-- Panel Admin (oculto por defecto) -->
-    <section class="card pad" id="admin" style="margin-top:16px; display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-        <h2 style="margin:0">🔧 Panel de Administración</h2>
-        <div class="tag">Atajo: F9</div>
-      </div>
-      <p class="muted" style="margin-top:6px">Herramientas locales para moderar. Requiere contraseña.</p>
-
-      <div class="row" style="margin-top:8px">
-        <input id="adminPass" placeholder="Contraseña" type="password" />
-        <button class="btn" id="btnAuth">Entrar</button>
-        <button class="btn sec" id="btnExport" disabled>Exportar JSON</button>
-        <label class="btn sec" for="importFile" id="importLabel" style="display:inline-block;cursor:pointer;opacity:.7">Importar JSON</label>
-        <input type="file" id="importFile" accept="application/json" style="display:none" />
-        <button class="btn danger" id="btnClear" disabled>Vaciar todo</button>
-      </div>
-      <div id="adminStatus" class="notice" style="margin-top:8px">Bloqueado</div>
-      <div id="adminList" style="margin-top:12px"></div>
-    </section>
+    </div>
+    <div class="card" id="comments">
+      <!-- Los comentarios aparecerán aquí -->
+    </div>
   </div>
-
-  <button class="btn float-admin" id="toggleAdmin" title="Abrir Admin (F9)">⚙️</button>
-
-  <script>
-  // ====== Utilidades ======
-  const $ = (s, p=document) => p.querySelector(s);
-  const $$ = (s, p=document) => Array.from(p.querySelectorAll(s));
-  const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
-  const now = () => Date.now();
-  const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
-
-  // Config
-  const STORAGE_KEY = 'comments_v1';
-  const CLIENT_KEY = 'client_id';
-  const ADMIN_OK_KEY = 'admin_ok';
-  const RATE_MS = 10_000; // 10 s entre publicaciones
-  const PAGE_SIZE = 12;   // cantidad inicial
-  const ADMIN_PASSWORD = 'admin123'; // cambia esto
-
-  // Estado en memoria
-  let state = { comments: [], lastPostAt: 0, showCount: PAGE_SIZE };
-  let replyingTo = null; // id
-
-  // Session client id
-  if(!localStorage.getItem(CLIENT_KEY)) localStorage.setItem(CLIENT_KEY, uid());
-  const clientId = localStorage.getItem(CLIENT_KEY);
-
-  // Cargar de localStorage
-  function load(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(raw){ const parsed = JSON.parse(raw); if(Array.isArray(parsed)) state.comments = parsed; }
-    }catch(e){ console.warn('No se pudo leer storage', e); }
-  }
-  function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.comments)); }
-
-  // Sanitización + linkify segura sin innerHTML directo
-  function renderSafeText(text){
-    const frag = document.createDocumentFragment();
-    const urlRe = /(https?:\/\/[^\s]+)/g;
-    let lastIndex = 0; let m;
-    while((m = urlRe.exec(text))){
-      const pre = text.slice(lastIndex, m.index);
-      if(pre) frag.appendChild(document.createTextNode(pre));
-      const a = document.createElement('a');
-      a.href = m[1]; a.textContent = m[1];
-      a.target = '_blank'; a.rel = 'nofollow noreferrer noopener';
-      frag.appendChild(a);
-      lastIndex = m.index + m[0].length;
-    }
-    const tail = text.slice(lastIndex);
-    if(tail) frag.appendChild(document.createTextNode(tail));
-    return frag;
-  }
-
-  function timeAgo(ts){
-    const s = Math.floor((now()-ts)/1000);
-    if(s < 60) return `hace ${s}s`;
-    const m = Math.floor(s/60); if(m < 60) return `hace ${m}m`;
-    const h = Math.floor(m/60); if(h < 24) return `hace ${h}h`;
-    const d = Math.floor(h/24); if(d < 7) return `hace ${d}d`;
-    const date = new Date(ts);
-    return date.toLocaleString();
-  }
-
-  // ====== Modelo ======
-  function newComment({author, text, parentId=null}){
-    return { id: uid(), parentId, author: author.trim(), text: text.trim(), ts: now(), likes: 0, edited: false, hidden: false, owner: clientId };
-  }
-
-  function getTree(filterFn){
-    const items = state.comments.filter(c => !c.hidden && (!filterFn || filterFn(c)));
-    const byId = new Map(items.map(c => [c.id,c]));
-    const roots = [];
-    for(const c of items){ c.children = []; }
-    for(const c of items){
-      if(c.parentId && byId.has(c.parentId)) byId.get(c.parentId).children.push(c);
-      else roots.push(c);
-    }
-    return roots;
-  }
-
-  function sortList(list, criterion){
-    if(criterion==='top') list.sort((a,b)=> (b.likes||0)-(a.likes||0) || b.ts-a.ts);
-    else if(criterion==='old') list.sort((a,b)=> a.ts-b.ts);
-    else list.sort((a,b)=> b.ts-a.ts); // new
-    for(const c of list){ sortList(c.children, criterion); }
-  }
-
-  // ====== Render ======
-  const elComments = $('#comments');
-  const elStats = $('#stats');
-  const elLoadMore = $('#loadMore');
-
-  function render(){
-    const q = $('#search').value.trim().toLowerCase();
-    const sortBy = $('#sortBy').value;
-    const filterFn = q ? (c => c.text.toLowerCase().includes(q) || c.author.toLowerCase().includes(q)) : null;
-    const tree = getTree(filterFn);
-    sortList(tree, sortBy);
-
-    const total = tree.length;
-    const limit = state.showCount = clamp(state.showCount, PAGE_SIZE, Math.max(PAGE_SIZE, total));
-
-    elComments.innerHTML='';
-    const slice = tree.slice(0, limit);
-    for(const c of slice){ elComments.appendChild(renderComment(c)); }
-
-    elStats.textContent = `${state.comments.filter(c=>!c.hidden).length} comentarios visibles · ${total} coinciden con el filtro`;
-    elLoadMore.style.display = (total>limit) ? 'inline-block' : 'none';
-  }
-
-  function renderComment(c, level=0){
-    const wrap = document.createElement('div');
-    wrap.className = 'comment' + (level? ' reply' : '');
-    if(c.hidden) wrap.classList.add('hidden');
-
-    const avatar = document.createElement('div');
-    avatar.className = 'avatar';
-    avatar.textContent = c.author.slice(0,2).toUpperCase();
-
-    const body = document.createElement('div');
-
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-    const name = document.createElement('span'); name.className='name'; name.textContent = c.author || 'Anónimo';
-    const time = document.createElement('span'); time.className='chip'; time.textContent = timeAgo(c.ts);
-    const likes = document.createElement('span'); likes.className='chip'; likes.textContent = `❤️ ${c.likes||0}`;
-
-    meta.appendChild(name); meta.appendChild(time); meta.appendChild(likes);
-
-    const text = document.createElement('div');
-    text.style.whiteSpace='pre-wrap';
-    text.appendChild(renderSafeText(c.text));
-
-    const actions = document.createElement('div'); actions.className='actions'; actions.style.marginTop='6px';
-
-    const btnLike = mkBtn('Me gusta', ()=>{ c.likes=(c.likes||0)+1; save(); render(); });
-    const btnReply = mkBtn('Responder', ()=>{ replyingTo=c.id; $('#cancelReply').style.display='inline-block'; $('#content').focus(); updateComposerNotice(); });
-
-    actions.append(btnLike, btnReply);
-
-    if(c.owner===clientId){
-      const btnEdit = mkBtn('Editar', ()=> startEdit(c));
-      const btnDel = mkBtn('Eliminar', ()=>{ if(confirm('¿Eliminar comentario?')){ state.comments = state.comments.filter(x=>x.id!==c.id && x.parentId!==c.id); save(); render(); } });
-      actions.append(btnEdit, btnDel);
-    }
-
-    if(localStorage.getItem(ADMIN_OK_KEY)==='1'){
-      const btnHide = mkBtn(c.hidden?'Mostrar':'Ocultar', ()=>{ c.hidden=!c.hidden; save(); render(); renderAdmin(); });
-      const tag = document.createElement('span'); tag.className='tag'; tag.textContent = 'admin';
-      meta.appendChild(tag);
-      actions.append(btnHide);
-    }
-
-    body.append(meta, text, actions);
-    wrap.append(avatar, body);
-
-    if(c.children && c.children.length){
-      for(const child of c.children){
-        wrap.appendChild(renderComment(child, level+1));
-      }
-    }
-
-    return wrap;
-  }
-
-  function mkBtn(label, onClick, cls='btn sec'){
-    const b = document.createElement('button'); b.textContent=label; b.className=cls; b.type='button'; b.addEventListener('click', onClick); return b;
-  }
-
-  function startEdit(c){
-    const newText = prompt('Editar comentario:', c.text);
-    if(newText===null) return;
-    const t = newText.trim(); if(!t) return alert('No puede estar vacío.');
-    c.text = t; c.edited = true; save(); render();
-  }
-
-  // ====== Eventos UI ======
-  $('#commentForm').addEventListener('submit', (e)=>{
-    e.preventDefault();
-    const author = $('#name').value.trim() || 'Anónimo';
-    const text = $('#content').value.trim();
-    if(!text) return alert('Escribe algo.');
-    if(now()-state.lastPostAt < RATE_MS) return alert('Estás publicando muy rápido. Espera unos segundos.');
-
-    const c = newComment({author, text, parentId: replyingTo});
-    state.comments.push(c);
-    state.lastPostAt = now();
-    replyingTo = null;
-    $('#content').value='';
-    $('#cancelReply').style.display='none';
-    save(); render(); updateComposerNotice();
-  });
-
-  $('#cancelReply').addEventListener('click', ()=>{ replyingTo=null; $('#cancelReply').style.display='none'; updateComposerNotice(); });
-
-  $('#search').addEventListener('input', ()=>{ state.showCount=PAGE_SIZE; render(); });
-  $('#search').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); e.target.value=''; render(); }});
-  $('#sortBy').addEventListener('change', ()=> render());
-  $('#loadMore').addEventListener('click', ()=>{ state.showCount += PAGE_SIZE; render(); });
-
-  function updateComposerNotice(){
-    const n = $('#composerNotice');
-    if(replyingTo){
-      n.innerHTML = '';
-      const target = state.comments.find(c=>c.id===replyingTo);
-      const b = document.createElement('b'); b.textContent = `Respondiendo a ${target?.author ?? 'alguien'}`;
-      n.append(' ', b, ' · Tus publicaciones se guardan localmente.');
-    } else {
-      n.textContent = 'Tus publicaciones se guardan en este dispositivo. No hay servidor.';
-    }
-  }
-
-  // ====== Admin ======
-  $('#toggleAdmin').addEventListener('click', ()=> toggleAdmin());
-  document.addEventListener('keydown', (e)=>{ if(e.key==='F9'){ e.preventDefault(); toggleAdmin(); }});
-
-  function toggleAdmin(){
-    const el = $('#admin');
-    el.style.display = (el.style.display==='none' || !el.style.display) ? 'block' : 'none';
-  }
-
-  $('#btnAuth').addEventListener('click', ()=>{
-    const ok = $('#adminPass').value === ADMIN_PASSWORD;
-    localStorage.setItem(ADMIN_OK_KEY, ok? '1':'0');
-    $('#adminStatus').textContent = ok? 'Desbloqueado' : 'Bloqueado';
-    $('#btnExport').disabled = !ok; $('#btnClear').disabled = !ok; $('#importLabel').style.opacity = ok? 1 : .7;
-    render(); renderAdmin();
-  });
-
-  $('#btnExport').addEventListener('click', ()=>{
-    const blob = new Blob([JSON.stringify(state.comments, null, 2)], {type:'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'comentarios.json';
-    a.click();
-    URL.revokeObjectURL(a.href);
-  });
-
-  $('#importFile').addEventListener('change', async (e)=>{
-    const file = e.target.files[0]; if(!file) return;
-    const txt = await file.text();
-    try{ const arr = JSON.parse(txt); if(Array.isArray(arr)) { state.comments = arr; save(); render(); renderAdmin(); alert('Importado.'); } else alert('Formato inválido'); }
-    catch(err){ alert('JSON inválido'); }
-    e.target.value='';
-  });
-
-  $('#btnClear').addEventListener('click', ()=>{
-    if(confirm('Esto eliminará TODOS los comentarios. ¿Continuar?')){
-      state.comments = []; save(); render(); renderAdmin();
-    }
-  });
-
-  function renderAdmin(){
-    const ok = localStorage.getItem(ADMIN_OK_KEY)==='1';
-    $('#adminStatus').innerHTML = ok ? '<span class="ok-text">Acceso concedido</span>' : '<span class="danger-text">Bloqueado</span>';
-    $('#btnExport').disabled = !ok; $('#btnClear').disabled = !ok; $('#importLabel').style.opacity = ok?1:.7;
-    const list = $('#adminList'); list.innerHTML='';
-    if(!ok){ list.innerHTML = '<div class="notice">Introduce la contraseña para moderar.</div>'; return; }
-
-    const table = document.createElement('div');
-    for(const c of state.comments.slice().sort((a,b)=> b.ts-a.ts)){
-      const row = document.createElement('div'); row.style.display='grid'; row.style.gridTemplateColumns='1fr auto'; row.style.gap='8px'; row.style.alignItems='center'; row.style.padding='8px'; row.style.borderBottom='1px dashed var(--border)';
-      const left = document.createElement('div');
-      const title = document.createElement('div'); title.innerHTML = `<b>${escapeHtml(c.author)}</b> <span class="muted">· ${new Date(c.ts).toLocaleString()}</span>`;
-      const body = document.createElement('div'); body.appendChild(renderSafeText(c.text));
-      left.append(title, body);
-      const right = document.createElement('div'); right.style.display='flex'; right.style.gap='6px';
-      const btnHide = mkBtn(c.hidden?'Mostrar':'Ocultar', ()=>{ c.hidden=!c.hidden; save(); render(); renderAdmin(); });
-      const btnDel = mkBtn('Eliminar', ()=>{ if(confirm('¿Eliminar?')){ state.comments = state.comments.filter(x=>x.id!==c.id && x.parentId!==c.id); save(); render(); renderAdmin(); } }, 'btn danger');
-      right.append(btnHide, btnDel);
-      row.append(left, right);
-      table.append(row);
-    }
-    list.append(table);
-  }
-
-  function escapeHtml(str){
-    return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
-  }
-
-  // ====== Inicio ======
-  load();
-  render();
-  renderAdmin();
-  updateComposerNotice();
-
-  </script>
 </body>
 </html>
