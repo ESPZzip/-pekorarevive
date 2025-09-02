@@ -5,95 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Comentarios en vivo</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f6fa;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-    }
-    .container {
-      width: 100%;
-      max-width: 700px;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      color: #2d3436;
-    }
-    form {
-      background: #fff;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-    input, textarea, button {
-      width: 100%;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-    button {
-      background: #0984e3;
-      color: #fff;
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #74b9ff;
-    }
-    .comment {
-      background: #fff;
-      padding: 12px;
-      margin-bottom: 12px;
-      border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      position: relative;
-    }
-    .comment .author {
-      font-weight: bold;
-      color: #2d3436;
-    }
-    .comment .time {
-      font-size: 12px;
-      color: #636e72;
-    }
-    .comment .text {
-      margin-top: 5px;
-    }
-    .actions {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-    }
-    .actions button {
-      background: transparent;
-      border: none;
-      color: #0984e3;
-      cursor: pointer;
-      font-size: 13px;
-      margin-left: 5px;
-    }
-    .actions button:hover {
-      text-decoration: underline;
-    }
+    body { font-family: Arial, sans-serif; background: #f5f6fa; display: flex; justify-content: center; margin: 0; padding: 0; }
+    .container { width: 100%; max-width: 700px; padding: 20px; }
+    h1 { text-align: center; color: #2d3436; }
+    form { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    input, textarea, button { width: 100%; padding: 10px; margin: 5px 0; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; }
+    button { background: #0984e3; color: #fff; font-weight: bold; border: none; cursor: pointer; }
+    button:hover { background: #74b9ff; }
+    .comment { background: #fff; padding: 12px; margin-bottom: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: relative; }
+    .comment .author { font-weight: bold; color: #2d3436; }
+    .comment .time { font-size: 12px; color: #636e72; }
+    .comment .text { margin-top: 5px; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>💬 Comentarios en vivo</h1>
-
     <form id="commentForm">
       <input type="text" id="author" placeholder="Tu nombre" required>
       <textarea id="text" rows="3" placeholder="Escribe tu comentario..." required></textarea>
       <button type="submit">Publicar</button>
     </form>
-
     <div id="comments"></div>
   </div>
 
@@ -102,12 +34,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
-    // ✅ Tu configuración de Firebase
+    // ✅ Configuración corregida
     const firebaseConfig = { 
       apiKey: "AIzaSyBwj_as6pb5Bg81F9Cl9VWTKkekMM9Exfk",
       authDomain: "pekora-forum.firebaseapp.com",
       projectId: "pekora-forum",
-      storageBucket: "pekora-forum.firebasestorage.app",
+      storageBucket: "pekora-forum.appspot.com", // 🔥 corregido
       messagingSenderId: "161910967859",
       appId: "1:161910967859:web:d91e68d48a6be3b1e9dd46"
     };
@@ -118,70 +50,36 @@
     const form = document.getElementById("commentForm");
     const commentsDiv = document.getElementById("comments");
 
-    // Guardar nombre en localStorage
     document.getElementById("author").value = localStorage.getItem("author") || "";
 
-    // Publicar comentario
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const author = document.getElementById("author").value.trim();
       const text = document.getElementById("text").value.trim();
       if(author && text) {
-        localStorage.setItem("author", author); // guardar nombre
+        localStorage.setItem("author", author);
         await db.collection("comments").add({
           author,
           text,
           ts: firebase.firestore.FieldValue.serverTimestamp()
         });
         form.reset();
-        document.getElementById("author").value = author; // mantener nombre
+        document.getElementById("author").value = author;
       }
     });
 
-    // Mostrar comentarios en vivo
     db.collection("comments").orderBy("ts", "desc").onSnapshot(snapshot => {
       commentsDiv.innerHTML = "";
       snapshot.forEach(doc => {
         const data = doc.data();
-        const id = doc.id;
         const time = data.ts ? data.ts.toDate().toLocaleString() : "justo ahora";
         const div = document.createElement("div");
         div.classList.add("comment");
         div.innerHTML = `
           <div class="author">${data.author}</div>
           <div class="time">${time}</div>
-          <div class="text" id="text-${id}">${data.text}</div>
+          <div class="text">${data.text}</div>
         `;
-
-        // Si el autor es el mismo que el guardado en localStorage → permitir editar/borrar
-        if(localStorage.getItem("author") === data.author) {
-          const actions = document.createElement("div");
-          actions.classList.add("actions");
-
-          // Botón editar
-          const editBtn = document.createElement("button");
-          editBtn.textContent = "Editar";
-          editBtn.onclick = async () => {
-            const nuevoTexto = prompt("Edita tu comentario:", data.text);
-            if(nuevoTexto && nuevoTexto.trim() !== "") {
-              await db.collection("comments").doc(id).update({ text: nuevoTexto });
-            }
-          };
-          actions.appendChild(editBtn);
-
-          // Botón eliminar
-          const deleteBtn = document.createElement("button");
-          deleteBtn.textContent = "Eliminar";
-          deleteBtn.onclick = async () => {
-            if(confirm("¿Seguro que quieres borrar este comentario?")) {
-              await db.collection("comments").doc(id).delete();
-            }
-          };
-          actions.appendChild(deleteBtn);
-
-          div.appendChild(actions);
-        }
-
         commentsDiv.appendChild(div);
       });
     });
