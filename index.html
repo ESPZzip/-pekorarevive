@@ -35,7 +35,6 @@
     .comment .time { font-size: 12px; color: #636e72; margin-top: 5px; }
     .comment .text { margin-top: 10px; }
 
-    /* Admin panel */
     #adminPanel { display: none; background: #ffeaa7; padding: 20px; border-radius: 10px; border: 2px solid #f39c12; margin-top: 20px; }
     .admin-comment { background: #ffeaa7; padding: 10px; margin: 5px 0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
     .admin-comment button { background: #d63031; width: auto; padding: 6px 12px; border-radius: 6px; }
@@ -47,7 +46,7 @@
 <body>
   <header>
     <h1>🌐 Pekora Forum</h1>
-    <p>Regístrate, inicia sesión y comparte tus ideas con la comunidad</p>
+    <p>Regístrate con usuario y contraseña, inicia sesión y comparte tus ideas</p>
   </header>
 
   <nav>
@@ -60,18 +59,18 @@
     <h2>👤 Autenticación</h2>
     <div class="card">
       <h3>Registrarse</h3>
-      <input type="email" id="regEmail" placeholder="Email" required />
+      <input type="text" id="regUser" placeholder="Nombre de usuario" required />
       <input type="password" id="regPass" placeholder="Contraseña" required />
       <button onclick="register()">Crear cuenta</button>
     </div>
     <div class="card">
       <h3>Iniciar Sesión</h3>
-      <input type="email" id="logEmail" placeholder="Email" required />
+      <input type="text" id="logUser" placeholder="Nombre de usuario" required />
       <input type="password" id="logPass" placeholder="Contraseña" required />
       <button onclick="login()">Entrar</button>
     </div>
     <div class="card hidden" id="userPanel">
-      <h3>Bienvenido <span id="userEmail"></span></h3>
+      <h3>Bienvenido <span id="userName"></span></h3>
       <button onclick="logout()">Cerrar sesión</button>
     </div>
   </div>
@@ -94,11 +93,10 @@
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
-    // Configuración de tu Firebase
+    // Configuración de Firebase
     const firebaseConfig = { 
       apiKey: "AIzaSyBwj_as6pb5Bg81F9Cl9VWTKkekMM9Exfk",
       authDomain: "pekora-forum.firebaseapp.com",
@@ -107,44 +105,49 @@
       messagingSenderId: "161910967859",
       appId: "1:161910967859:web:d91e68d48a6be3b1e9dd46"
     };
-
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
     const db = firebase.firestore();
 
-    const regEmail = document.getElementById("regEmail");
-    const regPass = document.getElementById("regPass");
-    const logEmail = document.getElementById("logEmail");
-    const logPass = document.getElementById("logPass");
-    const userPanel = document.getElementById("userPanel");
-    const userEmailSpan = document.getElementById("userEmail");
-    const comentariosDiv = document.getElementById("comentarios");
+    let currentUser = null;
 
-    function register() {
-      auth.createUserWithEmailAndPassword(regEmail.value, regPass.value)
-        .then(() => alert("✅ Cuenta creada, ahora inicia sesión"))
-        .catch(err => alert("Error: " + err.message));
+    async function register() {
+      const username = document.getElementById("regUser").value.trim();
+      const password = document.getElementById("regPass").value.trim();
+
+      if (!username || !password) return alert("Completa los campos");
+
+      const userDoc = await db.collection("users").doc(username).get();
+      if (userDoc.exists) {
+        alert("Ese nombre de usuario ya está en uso");
+        return;
+      }
+
+      await db.collection("users").doc(username).set({ password });
+      alert("✅ Cuenta creada, ahora inicia sesión");
     }
 
-    function login() {
-      auth.signInWithEmailAndPassword(logEmail.value, logPass.value)
-        .catch(err => alert("Error: " + err.message));
+    async function login() {
+      const username = document.getElementById("logUser").value.trim();
+      const password = document.getElementById("logPass").value.trim();
+
+      const userDoc = await db.collection("users").doc(username).get();
+      if (!userDoc.exists || userDoc.data().password !== password) {
+        alert("❌ Usuario o contraseña incorrectos");
+        return;
+      }
+
+      currentUser = username;
+      document.getElementById("userName").textContent = username;
+      document.getElementById("userPanel").classList.remove("hidden");
+      document.getElementById("comentarios").classList.remove("hidden");
+      alert("✅ Sesión iniciada");
     }
 
     function logout() {
-      auth.signOut();
+      currentUser = null;
+      document.getElementById("userPanel").classList.add("hidden");
+      document.getElementById("comentarios").classList.add("hidden");
     }
-
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        userPanel.classList.remove("hidden");
-        userEmailSpan.textContent = user.email;
-        comentariosDiv.classList.remove("hidden");
-      } else {
-        userPanel.classList.add("hidden");
-        comentariosDiv.classList.add("hidden");
-      }
-    });
 
     // Comentarios
     const form = document.getElementById("commentForm");
@@ -154,12 +157,12 @@
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const user = auth.currentUser;
-      if (!user) return alert("Debes iniciar sesión");
+      if (!currentUser) return alert("Debes iniciar sesión");
+
       const text = document.getElementById("text").value.trim();
       if (text) {
         await db.collection("comments").add({
-          author: user.email,
+          author: currentUser,
           text,
           ts: firebase.firestore.FieldValue.serverTimestamp()
         });
@@ -199,6 +202,7 @@
       }
     }
 
+    // Panel admin con F9
     document.addEventListener("keydown", (e) => {
       if (e.key === "F9") {
         if(adminPanel.style.display === "block") {
