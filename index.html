@@ -51,7 +51,8 @@
     <!-- Panel Admin -->
     <div id="adminPanel" class="hidden">
       <h2>⚙️ Panel de Admin</h2>
-      <input type="text" id="rankUser" placeholder="Usuario (nombre)">
+      <label for="rankUser">Selecciona un usuario:</label>
+      <select id="rankUser"></select>
       <select id="rankType">
         <option value="Admin">Admin</option>
         <option value="Moderador">Moderador</option>
@@ -83,6 +84,7 @@
     const forumContainer = document.getElementById("forumContainer");
     const adminPanel = document.getElementById("adminPanel");
     const commentsDiv = document.getElementById("comments");
+    const rankUserSelect = document.getElementById("rankUser");
 
     let currentUser = null;
 
@@ -92,13 +94,18 @@
       const password = document.getElementById("registerPass").value;
       if (!username || !password) return alert("Completa los campos");
 
-      const userDoc = await db.collection("users").doc(username).get();
-      if (userDoc.exists) {
-        alert("Ese nombre ya está en uso");
-        return;
+      try {
+        const userDoc = await db.collection("users").doc(username).get();
+        if (userDoc.exists) {
+          alert("Ese nombre ya está en uso");
+          return;
+        }
+        await db.collection("users").doc(username).set({ password });
+        alert("✅ Registrado con éxito, ahora inicia sesión");
+      } catch (e) {
+        console.error("Error registrando: ", e);
+        alert("Error registrando usuario");
       }
-      await db.collection("users").doc(username).set({ password });
-      alert("✅ Registrado con éxito, ahora inicia sesión");
     }
 
     // 🔹 Login
@@ -107,15 +114,20 @@
       const password = document.getElementById("loginPass").value;
       if (!username || !password) return alert("Completa los campos");
 
-      const userDoc = await db.collection("users").doc(username).get();
-      if (!userDoc.exists || userDoc.data().password !== password) {
-        alert("Usuario o contraseña incorrectos");
-        return;
-      }
+      try {
+        const userDoc = await db.collection("users").doc(username).get();
+        if (!userDoc.exists || userDoc.data().password !== password) {
+          alert("Usuario o contraseña incorrectos");
+          return;
+        }
 
-      currentUser = username;
-      localStorage.setItem("pekoraUser", username);
-      showForum();
+        currentUser = username;
+        localStorage.setItem("pekoraUser", username);
+        showForum();
+      } catch (e) {
+        console.error("Error al iniciar sesión: ", e);
+        alert("Error en login");
+      }
     }
 
     // 🔹 Logout
@@ -142,6 +154,7 @@
 
       if (currentUser === "Cracky") {
         adminPanel.classList.remove("hidden");
+        loadUsersForAdmin();
       } else {
         adminPanel.classList.add("hidden");
       }
@@ -182,11 +195,24 @@
       });
     }
 
+    // 🔹 Cargar lista de usuarios para Cracky
+    function loadUsersForAdmin() {
+      db.collection("users").onSnapshot(snap => {
+        rankUserSelect.innerHTML = "";
+        snap.forEach(doc => {
+          const option = document.createElement("option");
+          option.value = doc.id;
+          option.textContent = doc.id;
+          rankUserSelect.appendChild(option);
+        });
+      });
+    }
+
     // 🔹 Asignar rango
     async function assignRank() {
       const userName = document.getElementById("rankUser").value.trim();
       const rank = document.getElementById("rankType").value;
-      if (!userName) return alert("Debes poner un usuario");
+      if (!userName) return alert("Debes seleccionar un usuario");
       await db.collection("ranks").doc(userName).set({ rank });
       alert("Rango asignado con éxito a " + userName);
     }
