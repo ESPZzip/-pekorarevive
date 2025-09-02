@@ -1,89 +1,138 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Página de Comentarios — Firebase</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pekora Forums</title>
   <style>
-    body{font-family:sans-serif;background:#0f1220;color:#fff;margin:0;padding:0}
-    .container{max-width:700px;margin:0 auto;padding:20px}
-    h1{margin:0 0 20px}
-    .card{background:#151935;border-radius:10px;padding:16px;margin-bottom:16px}
-    input,textarea,button{width:100%;margin:6px 0;padding:10px;border-radius:6px;border:none;font:inherit}
-    input,textarea{background:#0e1330;color:#fff}
-    button{background:#3b7bff;color:#fff;cursor:pointer}
-    button:hover{opacity:0.9}
-    .comment{border-bottom:1px solid #2a2a4a;padding:8px 0}
-    .meta{font-size:12px;color:#aaa}
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 700px;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #2d3436;
+    }
+    form {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    button {
+      background: #0984e3;
+      color: #fff;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #74b9ff;
+    }
+    .comment {
+      background: #fff;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .comment .author {
+      font-weight: bold;
+      color: #2d3436;
+    }
+    .comment .time {
+      font-size: 12px;
+      color: #636e72;
+    }
+    .comment .text {
+      margin-top: 5px;
+    }
   </style>
-  <!-- Firebase SDK -->
-  <script type="module">
-    // Importa los módulos de Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    // 🚨 Reemplaza con tu propia configuración de Firebase
-    const firebaseConfig = {
-      apiKey: "TU_API_KEY",
-      authDomain: "TU_PROYECTO.firebaseapp.com",
-      projectId: "TU_PROYECTO",
-      storageBucket: "TU_PROYECTO.appspot.com",
-      messagingSenderId: "ID",
-      appId: "APP_ID"
-    };
-
-    // Inicializar Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const form = document.addEventListener('DOMContentLoaded', ()=>{
-      const form = document.getElementById('commentForm');
-      const nameEl = document.getElementById('name');
-      const contentEl = document.getElementById('content');
-      const list = document.getElementById('comments');
-
-      // Publicar comentario
-      form.addEventListener('submit', async (e)=>{
-        e.preventDefault();
-        const name = nameEl.value.trim() || "Anónimo";
-        const text = contentEl.value.trim();
-        if(!text) return;
-        await addDoc(collection(db, "comments"), {
-          author: name,
-          text: text,
-          ts: serverTimestamp()
-        });
-        contentEl.value = "";
-      });
-
-      // Escuchar en tiempo real
-      const q = query(collection(db, "comments"), orderBy("ts", "desc"));
-      onSnapshot(q, (snapshot)=>{
-        list.innerHTML = "";
-        snapshot.forEach(doc=>{
-          const c = doc.data();
-          const div = document.createElement('div');
-          div.className = 'comment';
-          div.innerHTML = `<div><b>${c.author}</b></div><div>${c.text}</div><div class="meta">${c.ts?.toDate? c.ts.toDate().toLocaleString(): ''}</div>`;
-          list.appendChild(div);
-        });
-      });
-    });
-  </script>
 </head>
 <body>
   <div class="container">
-    <h1>💬 Comentarios (Firebase)</h1>
-    <div class="card">
-      <form id="commentForm">
-        <input id="name" placeholder="Tu nombre" maxlength="30" required />
-        <textarea id="content" placeholder="Escribe tu comentario" maxlength="500" required></textarea>
-        <button type="submit">Publicar</button>
-      </form>
-    </div>
-    <div class="card" id="comments">
-      <!-- Los comentarios aparecerán aquí -->
-    </div>
+    <h1>💬 Forums</h1>
+
+    <form id="commentForm">
+      <input type="text" id="author" placeholder="Tu nombre" required>
+      <textarea id="text" rows="3" placeholder="Write your comment..." required></textarea>
+      <button type="submit">Post</button>
+    </form>
+
+    <div id="comments"></div>
   </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    // 🚨 Pega aquí tu configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBwj_as6pb5Bg81F9Cl9VWTKkekMM9Exfk",
+      authDomain: "pekora-forum.firebaseapp.com",
+      projectId: "pekora-forum",
+      storageBucket: "pekora-forum.firebasestorage.app",
+      messagingSenderId: "161910967859",
+      appId: "1:161910967859:web:d91e68d48a6be3b1e9dd46"
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const form = document.getElementById("commentForm");
+    const commentsDiv = document.getElementById("comments");
+
+    // Guardar comentario en Firestore
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const author = document.getElementById("author").value.trim();
+      const text = document.getElementById("text").value.trim();
+      if(author && text) {
+        await db.collection("comments").add({
+          author,
+          text,
+          ts: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        form.reset();
+      }
+    });
+
+    // Escuchar cambios en tiempo real
+    db.collection("comments").orderBy("ts", "desc").onSnapshot(snapshot => {
+      commentsDiv.innerHTML = "";
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const time = data.ts ? data.ts.toDate().toLocaleString() : "justo ahora";
+        const div = document.createElement("div");
+        div.classList.add("comment");
+        div.innerHTML = `
+          <div class="author">${data.author}</div>
+          <div class="time">${time}</div>
+          <div class="text">${data.text}</div>
+        `;
+        commentsDiv.appendChild(div);
+      });
+    });
+  </script>
 </body>
 </html>
