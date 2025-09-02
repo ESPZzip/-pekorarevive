@@ -60,53 +60,53 @@
 <body>
   <div class="container">
     <header>
-      <h1>💬 Comentarios</h1>
+      <h1>💬 Forum</h1>
       <div class="toolbar">
         <div class="pill">This is fan web! <span class="kbd"></span> </div>
       </div>
     </header>
 
-    <!-- Publicar comentario -->
+    <!-- Public Forums -->
     <section class="card pad" id="composer">
       <form id="commentForm">
         <div class="row">
           <div class="grow">
-            <label>Nombre</label>
+            <label>Name</label>
             <input id="name" placeholder="Tu nombre" maxlength="30" required />
           </div>
           <div>
-            <label>Ordenar por</label>
+            <label>sort by</label>
             <select id="sortBy">
-              <option value="new">Más recientes</option>
-              <option value="top">Mejor valorados</option>
-              <option value="old">Más antiguos</option>
+              <option value="new">Most recent</option>
+              <option value="top">best rated</option>
+              <option value="old">Older</option>
             </select>
           </div>
         </div>
-        <label class="mt8">Mensaje</label>
-        <textarea id="content" placeholder="Escribe tu comentario" maxlength="1000" required></textarea>
+        <label class="mt8">Message</label>
+        <textarea id="content" placeholder="Write your comment" maxlength="1000" required></textarea>
         <div class="row" style="align-items:center;justify-content:space-between;margin-top:8px">
           <div class="search grow">
             <span class="icon">🔎</span>
-            <input id="search" placeholder="Buscar en comentarios… (enter para limpiar)" />
+            <input id="search" placeholder="Search in comments… (enter para limpiar)" />
           </div>
           <div class="actions">
-            <button type="button" class="btn sec" id="cancelReply" style="display:none">Cancelar respuesta</button>
-            <button type="submit" class="btn" id="submitBtn">Publicar</button>
+            <button type="button" class="btn sec" id="cancelReply" style="display:none">Cancel reply</button>
+            <button type="submit" class="btn" id="submitBtn">Post</button>
           </div>
         </div>
         <div class="hr"></div>
-        <div class="notice" id="composerNotice">Tus publicaciones se guardan en este dispositivo. No hay servidor.</div>
+        <div class="notice" id="composerNotice">Your posts are saved on this device. There is no server.</div>
       </form>
     </section>
 
-    <!-- Lista de comentarios -->
+    <!-- Comment List -->
     <section class="card pad" style="margin-top:16px">
       <div id="stats" class="muted" style="margin-bottom:8px"></div>
       <div id="comments"></div>
       <div class="footer">
-        <span class="muted">Hecho con ❤️, HTML+CSS+JS</span>
-        <button id="loadMore" class="btn sec">Cargar más</button>
+        <span class="muted">Made by Cracky10 on discord</span>
+        <button id="loadMore" class="btn sec">Load more</button>
       </div>
     </section>
 
