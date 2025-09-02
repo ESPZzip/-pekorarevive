@@ -1,91 +1,54 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pekora Forum</title>
+  <meta charset="UTF-8">
+  <title>Foro Pekora</title>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-white">
+<body class="bg-black text-white min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-2xl p-6">
+    <h1 class="text-3xl font-bold text-center mb-6">Foro Pekora 🐇</h1>
 
-  <!-- Navbar -->
-  <nav class="bg-gray-800 p-4 flex justify-between items-center">
-    <h1 class="text-xl font-bold text-green-400">🌐 Pekora Forum</h1>
-    <div id="menu" class="space-x-4 hidden">
-      <button onclick="showSection('commentsSection')" class="hover:text-green-400">Comentarios</button>
-      <button onclick="showProfile()" class="hover:text-green-400">Mi Perfil</button>
-      <button onclick="showSection('adminSection')" id="adminBtn" class="hidden hover:text-red-400">Admin</button>
-      <button onclick="logout()" class="hover:text-yellow-400">Cerrar Sesión</button>
+    <!-- Registro -->
+    <div id="registerSection" class="space-y-3">
+      <h2 class="text-xl font-bold">Crear cuenta</h2>
+      <input id="regName" placeholder="Nombre de usuario" class="w-full p-2 rounded text-black">
+      <input id="regPass" type="password" placeholder="Contraseña" class="w-full p-2 rounded text-black">
+      <input id="regPhoto" type="file" accept="image/*" class="w-full p-2 bg-gray-800">
+      <button onclick="register()" class="w-full bg-blue-600 p-2 rounded">Registrar</button>
+      <p>¿Ya tienes cuenta? <button onclick="showLogin()" class="text-blue-400">Inicia sesión</button></p>
     </div>
-  </nav>
 
-  <!-- Login -->
-  <section id="loginSection" class="flex flex-col items-center justify-center h-screen">
-    <div class="bg-gray-800 p-8 rounded-2xl shadow-lg w-96">
-      <h2 class="text-2xl font-bold text-center mb-6 text-green-300">Iniciar Sesión</h2>
-      <input id="loginName" type="text" placeholder="Nombre" class="w-full mb-4 p-2 rounded bg-gray-700">
-      <input id="loginPass" type="password" placeholder="Contraseña" class="w-full mb-4 p-2 rounded bg-gray-700">
-      <button onclick="login()" class="w-full bg-green-600 hover:bg-green-500 py-2 rounded">Entrar</button>
-      <p class="mt-4 text-sm text-gray-400 text-center">¿No tienes cuenta? 
-        <a href="#" onclick="showSection('registerSection')" class="text-blue-400">Regístrate</a>
-      </p>
+    <!-- Login -->
+    <div id="loginSection" class="space-y-3 hidden">
+      <h2 class="text-xl font-bold">Iniciar sesión</h2>
+      <input id="logName" placeholder="Nombre de usuario" class="w-full p-2 rounded text-black">
+      <input id="logPass" type="password" placeholder="Contraseña" class="w-full p-2 rounded text-black">
+      <button onclick="login()" class="w-full bg-green-600 p-2 rounded">Entrar</button>
+      <p>¿No tienes cuenta? <button onclick="showRegister()" class="text-blue-400">Regístrate</button></p>
     </div>
-  </section>
 
-  <!-- Register -->
-  <section id="registerSection" class="flex flex-col items-center justify-center h-screen hidden">
-    <div class="bg-gray-800 p-8 rounded-2xl shadow-lg w-96">
-      <h2 class="text-2xl font-bold text-center mb-6 text-blue-300">Registrarse</h2>
-      <input id="regName" type="text" placeholder="Nombre" class="w-full mb-4 p-2 rounded bg-gray-700">
-      <input id="regPass" type="password" placeholder="Contraseña" class="w-full mb-4 p-2 rounded bg-gray-700">
-      <button onclick="register()" class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded">Crear cuenta</button>
-      <p class="mt-4 text-sm text-gray-400 text-center">¿Ya tienes cuenta? 
-        <a href="#" onclick="showSection('loginSection')" class="text-green-400">Inicia Sesión</a>
-      </p>
-    </div>
-  </section>
+    <!-- Menú principal -->
+    <div id="menu" class="hidden space-y-4">
+      <div class="flex justify-between items-center">
+        <h2 class="text-xl font-bold">Bienvenido, <span id="username"></span></h2>
+        <button onclick="logout()" class="bg-red-600 p-2 rounded">Cerrar sesión</button>
+      </div>
 
-  <!-- Comentarios -->
-  <section id="commentsSection" class="p-6 max-w-2xl mx-auto hidden">
-    <h2 class="text-xl font-semibold mb-4 text-green-300">Comentarios</h2>
-    <div class="flex mb-4">
-      <input id="commentInput" type="text" placeholder="Escribe un comentario..." class="flex-grow p-2 rounded-l bg-gray-700">
-      <button onclick="postComment()" class="px-4 py-2 bg-green-600 hover:bg-green-500 rounded-r">Enviar</button>
-    </div>
-    <div id="commentsList" class="space-y-4"></div>
-  </section>
-
-  <!-- Perfil -->
-  <section id="profileSection" class="p-6 max-w-md mx-auto mt-8 bg-gray-800 rounded-2xl shadow-lg hidden">
-    <h2 class="text-xl font-semibold text-green-300 mb-4">Mi Perfil</h2>
-    <div class="flex items-center mb-4">
-      <img id="profilePic" src="https://via.placeholder.com/80" class="w-20 h-20 rounded-full mr-4">
-      <div>
-        <p id="profileName" class="text-lg font-bold text-purple-300"></p>
-        <p id="profileRank" class="text-gray-400"></p>
+      <!-- Área de comentarios -->
+      <div id="commentsSection" class="space-y-3">
+        <textarea id="commentInput" placeholder="Escribe un comentario..." class="w-full p-2 rounded text-black"></textarea>
+        <button onclick="postComment()" class="w-full bg-blue-600 p-2 rounded">Publicar</button>
+        <div id="commentsList" class="mt-4 space-y-2"></div>
       </div>
     </div>
-    <input id="newPic" type="file" accept="image/*" class="w-full mb-3 text-sm text-gray-400">
-    <button onclick="updateProfilePic()" class="w-full px-4 py-2 bg-blue-600 rounded hover:bg-blue-500">Actualizar Foto</button>
-  </section>
-
-  <!-- Admin -->
-  <section id="adminSection" class="p-6 max-w-md mx-auto hidden">
-    <h2 class="text-xl font-semibold text-red-400 mb-4">Admin Panel</h2>
-    <input id="rankUser" type="text" placeholder="Usuario" class="w-full mb-3 p-2 rounded bg-gray-700">
-    <select id="rankSelect" class="w-full mb-3 p-2 rounded bg-gray-700">
-      <option value="Usuario">Usuario</option>
-      <option value="Admin">Admin</option>
-      <option value="VIP">VIP</option>
-    </select>
-    <button onclick="setRank()" class="w-full px-4 py-2 bg-red-600 hover:bg-red-500 rounded">Asignar Rango</button>
-  </section>
+  </div>
 
   <script>
-    // Firebase config
+    // Configuración Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBwj_as6pb5Bg81F9Cl9VWTKkekMM9Exfk",
       authDomain: "pekora-forum.firebaseapp.com",
@@ -100,79 +63,96 @@
 
     let currentUser = null;
 
-    function showSection(id) {
-      document.querySelectorAll("section").forEach(s => s.classList.add("hidden"));
-      document.getElementById(id).classList.remove("hidden");
+    // Cambiar vistas
+    function showRegister() {
+      document.getElementById("registerSection").classList.remove("hidden");
+      document.getElementById("loginSection").classList.add("hidden");
+    }
+    function showLogin() {
+      document.getElementById("loginSection").classList.remove("hidden");
+      document.getElementById("registerSection").classList.add("hidden");
+    }
+    function showMenu() {
+      document.getElementById("registerSection").classList.add("hidden");
+      document.getElementById("loginSection").classList.add("hidden");
+      document.getElementById("menu").classList.remove("hidden");
+      document.getElementById("username").innerText = currentUser.name;
     }
 
+    // Guardar sesión
+    window.onload = async function() {
+      const savedUser = localStorage.getItem("user");
+      if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        const doc = await db.collection("users").doc(currentUser.name).get();
+        if (doc.exists) {
+          currentUser = { name: currentUser.name, ...doc.data() };
+          localStorage.setItem("user", JSON.stringify(currentUser));
+        }
+        showMenu();
+        loadComments();
+      }
+    };
+
+    // Registro
     async function register() {
       const name = document.getElementById("regName").value.trim();
       const pass = document.getElementById("regPass").value.trim();
-      if (!name || !pass) return alert("Rellena todos los campos");
+      const file = document.getElementById("regPhoto").files[0];
+      if (!name || !pass) return alert("Completa todos los campos");
 
-      const doc = await db.collection("users").doc(name).get();
-      if (doc.exists) return alert("Ese usuario ya existe");
+      const userRef = db.collection("users").doc(name);
+      const docUser = await userRef.get();
+      if (docUser.exists) return alert("Ese usuario ya existe");
 
-      await db.collection("users").doc(name).set({
+      let photoURL = "";
+      if (file) {
+        const storageRef = storage.ref("profiles/" + name);
+        await storageRef.put(file);
+        photoURL = await storageRef.getDownloadURL();
+      }
+
+      await userRef.set({
         password: pass,
-        rank: "Usuario",
-        photo: ""
+        rank: name === "Cracky" ? "Admin" : "Usuario",
+        rankColor: name === "Cracky" ? "red" : "white",
+        photo: photoURL
       });
 
-      alert("Cuenta creada, inicia sesión ahora");
-      showSection("loginSection");
+      currentUser = { name, password: pass, rank: name === "Cracky" ? "Admin" : "Usuario", rankColor: name === "Cracky" ? "red" : "white", photo: photoURL };
+      localStorage.setItem("user", JSON.stringify(currentUser));
+      showMenu();
+      loadComments();
     }
 
+    // Login
     async function login() {
-      const name = document.getElementById("loginName").value.trim();
-      const pass = document.getElementById("loginPass").value.trim();
-      if (!name || !pass) return alert("Rellena todos los campos");
+      const name = document.getElementById("logName").value.trim();
+      const pass = document.getElementById("logPass").value.trim();
+      if (!name || !pass) return alert("Completa todos los campos");
 
-      const doc = await db.collection("users").doc(name).get();
-      if (!doc.exists) return alert("Usuario no encontrado");
+      const userRef = db.collection("users").doc(name);
+      const docUser = await userRef.get();
+      if (!docUser.exists) return alert("Usuario no encontrado");
 
-      const data = doc.data();
+      const data = docUser.data();
       if (data.password !== pass) return alert("Contraseña incorrecta");
 
       currentUser = { name, ...data };
       localStorage.setItem("user", JSON.stringify(currentUser));
-
-      document.getElementById("menu").classList.remove("hidden");
-      if (name === "Cracky") document.getElementById("adminBtn").classList.remove("hidden");
-
+      showMenu();
       loadComments();
-      showSection("commentsSection");
     }
 
+    // Cerrar sesión
     function logout() {
       currentUser = null;
       localStorage.removeItem("user");
       document.getElementById("menu").classList.add("hidden");
-      showSection("loginSection");
+      showLogin();
     }
 
-    async function loadComments() {
-      db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-        const list = document.getElementById("commentsList");
-        list.innerHTML = "";
-        snapshot.forEach(doc => {
-          const c = doc.data();
-          const div = document.createElement("div");
-          div.className = "bg-gray-800 p-3 rounded shadow";
-          div.innerHTML = `
-            <div class="flex items-center mb-2">
-              <img src="${c.photo || 'https://via.placeholder.com/40'}" class="w-10 h-10 rounded-full mr-3">
-              <span class="font-bold ${c.rank === 'Admin' ? 'text-red-400' : c.rank === 'VIP' ? 'text-yellow-400' : 'text-green-300'}">
-                ${c.rank} ${c.author}
-              </span>
-            </div>
-            <p>${c.text}</p>
-          `;
-          list.appendChild(div);
-        });
-      });
-    }
-
+    // Publicar comentario
     async function postComment() {
       if (!currentUser) return alert("Debes iniciar sesión");
       const text = document.getElementById("commentInput").value.trim();
@@ -184,6 +164,7 @@
       await db.collection("comments").add({
         author: currentUser.name,
         rank: currentUser.rank,
+        rankColor: currentUser.rankColor,
         text,
         photo,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -192,55 +173,51 @@
       document.getElementById("commentInput").value = "";
     }
 
-    function showProfile() {
+    // Cargar comentarios con botón borrar
+    function loadComments() {
+      db.collection("comments").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+        const list = document.getElementById("commentsList");
+        list.innerHTML = "";
+        snapshot.forEach(doc => {
+          const c = doc.data();
+
+          const div = document.createElement("div");
+          div.className = "bg-gray-800 p-3 rounded flex items-start justify-between";
+
+          div.innerHTML = `
+            <div class="flex items-start">
+              <img src="${c.photo || 'https://via.placeholder.com/40'}" class="w-10 h-10 rounded-full mr-3">
+              <div>
+                <p class="font-bold"><span style="color:${c.rankColor || 'white'}">${c.rank} ${c.author}</span></p>
+                <p>${c.text}</p>
+              </div>
+            </div>
+          `;
+
+          // Botón borrar
+          if (currentUser && (currentUser.name === c.author || currentUser.name === "Cracky")) {
+            const delBtn = document.createElement("button");
+            delBtn.innerText = "🗑️";
+            delBtn.className = "ml-3 text-red-400 hover:text-red-200";
+            delBtn.onclick = () => deleteComment(doc.id);
+            div.appendChild(delBtn);
+          }
+
+          list.appendChild(div);
+        });
+      });
+    }
+
+    // Borrar comentario
+    async function deleteComment(id) {
       if (!currentUser) return alert("Debes iniciar sesión");
-      document.getElementById("profileName").innerText = currentUser.name;
-      document.getElementById("profileRank").innerText = currentUser.rank;
-      document.getElementById("profilePic").src = currentUser.photo || "https://via.placeholder.com/80";
-      showSection("profileSection");
-    }
-
-    async function updateProfilePic() {
-      const picFile = document.getElementById("newPic").files[0];
-      if (!picFile) return alert("Selecciona una foto");
-
-      const storageRef = storage.ref("profilePics/" + currentUser.name);
-      await storageRef.put(picFile);
-      const photoURL = await storageRef.getDownloadURL();
-
-      await db.collection("users").doc(currentUser.name).update({ photo: photoURL });
-      currentUser.photo = photoURL;
-      localStorage.setItem("user", JSON.stringify(currentUser));
-      document.getElementById("profilePic").src = photoURL;
-
-      alert("Foto de perfil actualizada 🎉");
-    }
-
-    async function setRank() {
-      const user = document.getElementById("rankUser").value.trim();
-      const rank = document.getElementById("rankSelect").value;
-      if (!user) return;
-
-      await db.collection("users").doc(user).update({ rank });
-      alert("Rango actualizado");
-    }
-
-    // Revisar sesión al cargar
-    window.onload = async function() {
-      const savedUser = localStorage.getItem("user");
-      if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        const doc = await db.collection("users").doc(currentUser.name).get();
-        if (doc.exists) {
-          currentUser = { name: currentUser.name, ...doc.data() };
-          localStorage.setItem("user", JSON.stringify(currentUser));
-        }
-        document.getElementById("menu").classList.remove("hidden");
-        if (currentUser.name === "Cracky") document.getElementById("adminBtn").classList.remove("hidden");
-        loadComments();
-        showSection("commentsSection");
+      try {
+        await db.collection("comments").doc(id).delete();
+      } catch (e) {
+        console.error(e);
+        alert("Error al borrar el comentario");
       }
-    };
+    }
   </script>
 </body>
 </html>
