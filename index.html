@@ -44,6 +44,16 @@
     <div id="comments" class="space-y-4"></div>
   </section>
 
+  <!-- Admin Panel -->
+  <section id="adminPanel" class="p-6 max-w-2xl mx-auto mt-8 bg-gray-800 rounded-2xl shadow-lg hidden">
+    <h2 class="text-xl font-semibold text-red-400 mb-4">⚙️ Admin Panel</h2>
+    <div class="flex mb-4">
+      <input id="userTarget" type="text" placeholder="Usuario a modificar..." class="flex-1 p-2 rounded-l bg-gray-700 border border-gray-600">
+      <button onclick="setRank('Admin')" class="px-4 py-2 bg-red-600 rounded hover:bg-red-500">Hacer Admin</button>
+      <button onclick="setRank('Usuario')" class="px-4 py-2 bg-gray-600 rounded-r hover:bg-gray-500">Hacer Usuario</button>
+    </div>
+  </section>
+
   <script>
     // Config Firebase
     const firebaseConfig = { 
@@ -63,6 +73,7 @@
       document.getElementById("loginSection").classList.add("hidden");
       document.getElementById("registerSection").classList.add("hidden");
       document.getElementById("mainSection").classList.add("hidden");
+      document.getElementById("adminPanel").classList.add("hidden");
       document.getElementById(id).classList.remove("hidden");
     }
 
@@ -103,6 +114,11 @@
         localStorage.setItem("user", JSON.stringify(currentUser));
         showSection("mainSection");
         loadComments();
+
+        // Mostrar admin panel si es Cracky
+        if (name === "Cracky") {
+          document.getElementById("adminPanel").classList.remove("hidden");
+        }
       } catch (e) {
         console.error(e);
         alert("Error al iniciar sesión");
@@ -145,6 +161,21 @@
       });
     }
 
+    async function setRank(rank) {
+      const user = document.getElementById("userTarget").value.trim();
+      if (!user) return alert("Escribe el usuario a modificar");
+      try {
+        const userRef = db.collection("users").doc(user);
+        const doc = await userRef.get();
+        if (!doc.exists) return alert("Usuario no encontrado");
+        await userRef.update({ rank });
+        alert(`El usuario ${user} ahora es ${rank}`);
+      } catch (e) {
+        console.error(e);
+        alert("Error al cambiar rango");
+      }
+    }
+
     // Restaurar sesión
     window.onload = () => {
       const saved = localStorage.getItem("user");
@@ -152,6 +183,9 @@
         currentUser = JSON.parse(saved);
         showSection("mainSection");
         loadComments();
+        if (currentUser.name === "Cracky") {
+          document.getElementById("adminPanel").classList.remove("hidden");
+        }
       } else {
         showSection("loginSection");
       }
