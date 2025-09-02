@@ -145,10 +145,19 @@
       }
     }
 
-    // Mostrar/Ocultar panel admin con F9
+    // Mostrar/Ocultar panel admin con F9 + contraseña
     document.addEventListener("keydown", (e) => {
       if(e.key === "F9") {
-        adminPanel.style.display = (adminPanel.style.display === "none" || adminPanel.style.display === "") ? "block" : "none";
+        if(adminPanel.style.display === "block") {
+          adminPanel.style.display = "none";
+        } else {
+          const pass = prompt("🔑 Ingresa la contraseña de admin:");
+          if(pass === "cracky1010") {
+            adminPanel.style.display = "block";
+          } else {
+            alert("❌ Contraseña incorrecta");
+          }
+        }
       }
     });
   </script>
